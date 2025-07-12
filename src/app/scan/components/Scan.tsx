@@ -1,7 +1,7 @@
 'use client';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Box, PackageCheck, Scan } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Html5QrcodePlugin } from '@/app/scan/components/ScanCamera';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { rarities, User } from '../../../../backend/domain/types';
+import { BackgroundParticles } from '@/components/ui/BackgroundParticles';
 
 type ScanningProps = {
   user: User;
@@ -66,7 +67,7 @@ export const Scanning = ({ user }: ScanningProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      <AnimatedParticles />
+      <BackgroundParticles />
       <div className="relative z-10 container mx-auto px-4 py-8 min-h-screen flex items-center justify-center">
         <AnimatePresence mode="wait">
           <motion.div
@@ -148,41 +149,6 @@ export const Scanning = ({ user }: ScanningProps) => {
       </div>
     </div>
   );
-};
-
-const AnimatedParticles = () => {
-  const [particles, setParticles] = useState<JSX.Element[] | null>(null);
-
-  useEffect(() => {
-    const newParticles = Array.from({ length: 50 }).map((_, _i) => (
-      <motion.div
-        key={crypto.randomUUID()}
-        className="absolute w-1 h-1 bg-white rounded-full opacity-20"
-        animate={{
-          x: [
-            Math.random() * window.innerWidth,
-            Math.random() * window.innerWidth,
-          ],
-          y: [
-            Math.random() * window.innerHeight,
-            Math.random() * window.innerHeight,
-          ],
-        }}
-        transition={{
-          duration: Math.random() * 20 + 10,
-          repeat: Infinity,
-          ease: 'linear',
-        }}
-        style={{
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-        }}
-      />
-    ));
-    setParticles(newParticles);
-  }, []);
-
-  return <div className="absolute inset-0">{particles}</div>;
 };
 
 type TicketFormProps = {

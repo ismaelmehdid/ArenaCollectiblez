@@ -1,6 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Package, Sparkles, Plus, Star, Trophy } from 'lucide-react';
+import { Plus, Star, Trophy } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { FullUser } from '../../../../../backend/domain/types';
 import Image from 'next/image';
 import { InventoryTab } from './InventoryTab';
 import { BackgroundParticles } from '@/components/ui/BackgroundParticles';
+import LootBoxOpeningAnimation from './OpeningAnimation';
 
 const rarityConfig = {
   Common: { gradient: 'from-gray-400 to-gray-600', color: 'text-gray-400' },
@@ -54,25 +55,22 @@ const userNFTs = [
   },
 ];
 
-const userLootBoxes = [
-  { id: 1, type: 'Mystery Box', acquired: '2024-02-15', canOpen: true },
-  { id: 2, type: 'Epic Box', acquired: '2024-02-14', canOpen: true },
+const sampleCards = [
   {
-    id: 3,
-    type: 'Rare Box',
-    acquired: '2024-02-13',
-    canOpen: false,
-    openTime: '2024-02-16T10:00:00Z',
+    id: 1,
+    name: 'Cosmic Guardian',
+    rarity: 'Common',
+    image: '/placeholder.svg',
+  },
+  { id: 2, name: 'Storm Rider', rarity: 'Rare', image: '/placeholder.svg' },
+  { id: 3, name: 'Shadow Walker', rarity: 'Epic', image: '/placeholder.svg' },
+  {
+    id: 4,
+    name: 'Phoenix Lord',
+    rarity: 'Legendary',
+    image: '/placeholder.svg',
   },
 ];
-
-const userStats = {
-  totalNFTs: 12,
-  totalValue: 45.8,
-  ticketsScanned: 8,
-  lootBoxesOpened: 8,
-  rank: 'Gold Collector',
-};
 
 type UserProfileProps = {
   user: FullUser;
@@ -80,11 +78,38 @@ type UserProfileProps = {
 
 const UserProfile = ({ user }: UserProfileProps) => {
   const [activeTab, setActiveTab] = useState('inventory');
+  const [showOpeningAnimation, setShowOpeningAnimation] = useState(false);
+  const [revealedCard, setRevealedCard] = useState(null);
+  const [isRedemptionComplete, setIsRedemptionComplete] = useState(false);
+
+  const generateRandomCard = (rarity: string) => {
+    const possibleCards = sampleCards.filter((card) => card.rarity === rarity);
+    return (
+      possibleCards[Math.floor(Math.random() * possibleCards.length)] ||
+      sampleCards[0]
+    );
+  };
 
   const handleOpenLootBox = (boxId: string) => {
     console.log(`Opening loot box ${boxId}`);
+    setShowOpeningAnimation(true);
     // Here you would implement the loot box opening logic
   };
+
+  const handleOpeningComplete = (rarity: string) => {
+    const card = generateRandomCard(rarity); // mint real NFT here
+    setRevealedCard(card);
+    setShowOpeningAnimation(false);
+    setIsRedemptionComplete(true);
+  };
+
+  if (showOpeningAnimation) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <LootBoxOpeningAnimation onComplete={handleOpeningComplete} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
@@ -120,15 +145,11 @@ const UserProfile = ({ user }: UserProfileProps) => {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-white">
-                      {userStats.totalNFTs}
-                    </p>
+                    <p className="text-2xl font-bold text-white">{12}</p>
                     <p className="text-gray-400 text-sm">NFTs Owned</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-white">
-                      {userStats.ticketsScanned}
-                    </p>
+                    <p className="text-2xl font-bold text-white">{8}</p>
                     <p className="text-gray-400 text-sm">Tickets Scanned</p>
                   </div>
                   <div className="text-center">
