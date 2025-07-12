@@ -54,7 +54,7 @@ export const LootBoxDialog = ({
   onOpenChange,
 }: LootBoxDialogProps) => {
   const [step, setStep] = useState<'selection' | 'confirmation'>('selection');
-  const [selectedBox, setSelectedBox] = useState<LootBoxOption| null>(null);
+  const [selectedBox, setSelectedBox] = useState<LootBoxOption | null>(null);
   const router = useRouter();
 
   const handleBoxSelect = async (box: LootBoxOption) => {
