@@ -11,6 +11,7 @@ const nextConfig = {
       },
     ],
   },
+  allowedDevOrigins: ['https://kangaroo-amazing-wrongly.ngrok-free.app'],
 };
 
 module.exports = nextConfig;
