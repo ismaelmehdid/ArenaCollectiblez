@@ -47,3 +47,22 @@ export async function addPendingLootBox(
     return err(new Error('Failed to add pending loot box'));
   }
 }
+
+export async function getPendingLootBox(
+  userId: string,
+): Promise<Result<boolean, Error>> {
+  try {
+    const pendingLootBox = await db.query.lootBoxPending.findFirst({
+      where: (table, { eq }) => eq(table.user_id, userId),
+    });
+
+    if (pendingLootBox) {
+      return ok(true);
+    } else {
+      return ok(false);
+    }
+  } catch (error) {
+    console.error('Error checking pending loot box:', error);
+    return err(new Error('Failed to check pending loot box'));
+  }
+}

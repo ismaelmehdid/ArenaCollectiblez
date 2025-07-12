@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/resizable-navbar';
 import { ContextProvider, PusherProvider } from '@/context/context';
 import { getAuthorizedUser } from '../../backend/domain/auth';
+import { checkPendingLootBox } from '../../backend/domain/lootbox';
 
 export const metadata: Metadata = {
   title: 'ArenaCollectiblez',
@@ -27,6 +28,12 @@ export default async function Layout({
   const cookies = headersData.get('cookie');
   const user = await getAuthorizedUser();
 
+  if (user.isOk()) {
+    await checkPendingLootBox(
+      user.isOk() ? user.value.id : '',
+  );
+
+  }
   const navItems = [
     {
       name: 'Home',

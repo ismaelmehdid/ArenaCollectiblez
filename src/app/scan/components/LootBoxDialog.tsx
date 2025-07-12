@@ -1,112 +1,254 @@
-import { motion } from 'framer-motion';
-import { Package, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { toast } from '@/hooks/use-toast';
-import { rarities, sampleNFTs } from '../../../../backend/domain/types';
+'use client';
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+import Image from "next/image";
 
-export function LootBoxDialog({
-  showLootBoxDialog,
-  setShowLootBoxDialog,
-}: {
-  showLootBoxDialog: boolean;
-  setShowLootBoxDialog: (open: boolean) => void;
-}) {
-  
-  const generateRandomCard = () => {
-    const random = Math.random() * 100;
-    let selectedRarity = 'Common';
-    let cumulativeChance = 0;
+interface LootBox {
+  id: string;
+  name: string;
+  image: string;
+  teamColor: string;
+}
 
-    for (const rarity of rarities) {
-      cumulativeChance += rarity.chance;
-      if (random <= cumulativeChance) {
-        selectedRarity = rarity.name;
-        break;
-      }
-    }
+const lootBoxOptions: LootBox[] = [
+  {
+    id: "stormfox",
+    name: "StormFox FC",
+    image: "/lootBoxStormFox.png",
+    teamColor: "from-blue-500 to-cyan-500"
+  },
+  {
+    id: "blazehart",
+    name: "Blazehart SC",
+    image: "/lootBoxBlazehart.png",
+    teamColor: "from-red-500 to-orange-500"
+  }
+];
 
-    const possibleCards = sampleNFTs.filter(
-      (card) => card.rarity === selectedRarity,
-    );
-    return possibleCards[Math.floor(Math.random() * possibleCards.length)];
-  };
+interface LootBoxDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
 
-  const handleKeepInInventory = () => {
-    setShowLootBoxDialog(false);
+const LootBoxDialog = ({ open, onOpenChange }: LootBoxDialogProps) => {
+  const [step, setStep] = useState<'selection' | 'confirmation'>('selection');
+  const [selectedBox, setSelectedBox] = useState<LootBox | null>(null);
+
+  const handleBoxSelect = (box: LootBox) => {
+    setSelectedBox(box);
+    setStep('confirmation');
     toast({
-      title: 'Loot Box Saved',
-      description: 'Your loot box has been added to your inventory',
+      title: "Loot Box Received!",
+      description: `You've received a ${box.name} loot box!`
     });
   };
 
-  const handleOpenNow = () => {
-    console.log('Opening loot box...');
-    // setShowLootBoxDialog(false);
-    // setShowLootBoxAnimation(true);
+  const handleCheckInventory = () => {
+    setStep('selection');
+    setSelectedBox(null);
+  };
 
-    // // Generate random card after animation
-    // setTimeout(() => {
-    //   const card = generateRandomCard();
-    //   setRevealedCard(card);
-    //   setIsRedemptionComplete(true);
-    //   setShowLootBoxAnimation(false);
-    // }, 3000);
+  const handleDialogClose = (open: boolean) => {
+    if (!open) {
+      // Reset state when dialog closes
+      setStep('selection');
+      setSelectedBox(null);
+    }
+    onOpenChange(open);
   };
 
   return (
-    <Dialog open={showLootBoxDialog} onOpenChange={setShowLootBoxDialog}>
-      <DialogContent className="sm:max-w-md bg-black/90 backdrop-blur-xl border border-white/20 text-white">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center">
-            Mystery Loot Box
-          </DialogTitle>
-          <DialogDescription className="text-gray-300 text-center">
-            You've received a mystery loot box! What would you like to do?
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="flex flex-col items-center space-y-6 py-4">
-          <motion.div
-            animate={{
-              rotateY: [0, 360],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{
-              rotateY: { duration: 4, repeat: Infinity, ease: 'linear' },
-              scale: { duration: 2, repeat: Infinity, ease: 'easeInOut' },
-            }}
-            className="w-32 h-32 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-2xl shadow-2xl flex items-center justify-center"
-          >
-            <Package className="w-12 h-12 text-white" />
-          </motion.div>
-
-          <div className="flex flex-col space-y-3 w-full">
-            <Button
-              onClick={handleKeepInInventory}
-              variant="outline"
-              className="border-white/20 text-white hover:bg-white/10"
+    <Dialog open={open} onOpenChange={handleDialogClose}>
+      <DialogContent className="sm:max-w-2xl bg-black/90 backdrop-blur-xl border border-white/20 text-white">
+        <AnimatePresence mode="wait">
+          {step === 'selection' ? (
+            <motion.div
+              key="selection"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
             >
-              <Package className="w-4 h-4 mr-2" />
-              Keep in Inventory
-            </Button>
-
-            <Button
-              onClick={handleOpenNow}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-center">Choose Your Loot Box</DialogTitle>
+                <DialogDescription className="text-gray-300 text-center">
+                  Select which team's mystery loot box you'd like to receive
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
+                {lootBoxOptions.map((box) => (
+                  <motion.div
+                    key={box.id}
+                    className="group cursor-pointer"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleBoxSelect(box)}
+                  >
+                    <div className={`relative p-6 rounded-2xl bg-gradient-to-br ${box.teamColor} opacity-90 group-hover:opacity-100 transition-all duration-300 border border-white/10 group-hover:border-white/30`}>
+                      {/* Glow effect on hover */}
+                      <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${box.teamColor} blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300 -z-10`} />
+                      
+                      <div className="text-center space-y-4">
+                        <motion.div
+                          animate={{
+                            rotateY: [0, 15, -15, 0],
+                            scale: [1, 1.05, 1]
+                          }}
+                          transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                          className="w-24 h-24 mx-auto bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm"
+                        >
+                          <Image
+                            src={box.image}
+                            alt={`${box.name} Loot Box`}
+                            width={48}
+                            height={48}
+                            className="w-12 h-12 object-contain"
+                          />
+                        </motion.div>
+                        
+                        <h3 className="text-xl font-bold text-white">{box.name}</h3>
+                        <p className="text-white/80 text-sm">Mystery Loot Box</p>
+                        
+                        {/* Floating particles */}
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <motion.div
+                            key={crypto.randomUUID()}
+                            className="absolute w-1 h-1 bg-white rounded-full opacity-60"
+                            animate={{
+                              x: [0, (Math.random() - 0.5) * 100],
+                              y: [0, (Math.random() - 0.5) * 100],
+                              opacity: [0, 1, 0],
+                              scale: [0, 1, 0]
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              delay: i * 0.3,
+                              ease: "easeOut"
+                            }}
+                            style={{
+                              left: "50%",
+                              top: "50%"
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="confirmation"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
             >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Open Now (1 CHZ)
-            </Button>
-          </div>
-        </div>
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-center">Loot Box Received!</DialogTitle>
+                <DialogDescription className="text-gray-300 text-center">
+                  Your {selectedBox?.name} loot box has been added to your inventory
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="flex flex-col items-center space-y-6 py-6">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="relative"
+                >
+                  <motion.div
+                    animate={{
+                      rotateY: [0, 360],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{
+                      rotateY: { duration: 4, repeat: Infinity, ease: "linear" },
+                      scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                    }}
+                    className={`w-40 h-40 bg-gradient-to-br ${selectedBox?.teamColor} rounded-2xl shadow-2xl relative`}
+                    style={{ transformStyle: "preserve-3d" }}
+                  >
+                    {/* Box glow effect */}
+                    <motion.div
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className={`absolute inset-0 bg-gradient-to-br ${selectedBox?.teamColor} rounded-2xl blur-xl scale-110 opacity-50`}
+                    />
+                    
+                    {/* Box content */}
+                    <div className="relative z-10 w-full h-full flex items-center justify-center">
+                      <motion.div
+                        animate={{ rotate: [0, 180, 360] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                      >
+                          <Image
+                            src={selectedBox?.image || "/defaultLootBox.png"}
+                            alt={`${selectedBox?.name} Loot Box`}
+                            width={80}
+                            height={80}
+                            className="w-20 h-20 object-contain"
+                          />
+                      </motion.div>
+                    </div>
+                  </motion.div>
+
+                  {/* Floating sparkles */}
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <motion.div
+                      key={crypto.randomUUID()}
+                      className="absolute w-2 h-2 bg-yellow-400 rounded-full"
+                      animate={{
+                        x: [0, (Math.random() - 0.5) * 200],
+                        y: [0, (Math.random() - 0.5) * 200],
+                        opacity: [0, 1, 0],
+                        scale: [0, 1, 0]
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        delay: i * 0.25,
+                        ease: "easeOut"
+                      }}
+                      style={{
+                        left: "50%",
+                        top: "50%"
+                      }}
+                    />
+                  ))}
+                </motion.div>
+
+                <div className="text-center space-y-2">
+                  <h3 className="text-xl font-bold text-white">{selectedBox?.name}</h3>
+                  <p className="text-green-400 font-medium">✓ Added to Inventory</p>
+                </div>
+
+                <Button
+                  onClick={handleCheckInventory}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Check Inventory
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default LootBoxDialog;
