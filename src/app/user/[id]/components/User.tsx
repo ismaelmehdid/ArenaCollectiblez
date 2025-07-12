@@ -179,6 +179,10 @@ const userNFTs = [
   },
 ];
 
+type UserProfileProps = {
+  user: FullUser;
+};
+
 const sampleCards = [
   {
     id: 1,
@@ -196,15 +200,11 @@ const sampleCards = [
   },
 ];
 
-type UserProfileProps = {
-  user: FullUser;
-};
-
 const UserProfile = ({ user }: UserProfileProps) => {
   const [activeTab, setActiveTab] = useState('inventory');
   const [showOpeningAnimation, setShowOpeningAnimation] = useState(false);
-  const [revealedCard, setRevealedCard] = useState(null);
-  const [isRedemptionComplete, setIsRedemptionComplete] = useState(false);
+  const [_revealedCard, setRevealedCard] = useState(null);
+  const [_isRedemptionComplete, setIsRedemptionComplete] = useState(false);
 
   const generateRandomCard = (rarity: string) => {
     const possibleCards = sampleCards.filter((card) => card.rarity === rarity);

@@ -2,7 +2,7 @@ import 'server-only';
 import { err, ok, Result } from 'neverthrow';
 import { db } from '../database/connection';
 import { LootBoxType, lootBox, lootBoxPending } from '../database/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 export async function addLootBoxToUser(
   userId: string,
@@ -85,5 +85,25 @@ export async function getPendingLootBox(
   } catch (error) {
     console.error('Error checking pending loot box:', error);
     return err(new Error('Failed to check pending loot box'));
+  }
+}
+
+export async function deleteLootBoxById(
+  userId: string,
+  lootBoxId: string,
+): Promise<Result<boolean, Error>> {
+  try {
+    const result = await db
+      .delete(lootBox)
+      .where(and(eq(lootBox.id, lootBoxId), eq(lootBox.user_id, userId))).returning();
+
+    if (result.length === 0) {
+      return err(new Error('No loot box found with the given ID'));
+    }
+
+    return ok(true);
+  } catch (error) {
+    console.error('Error deleting loot box:', error);
+    return err(new Error('Failed to delete loot box'));
   }
 }

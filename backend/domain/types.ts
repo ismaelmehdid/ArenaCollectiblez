@@ -119,4 +119,11 @@ export type User = z.infer<typeof UserSchema>;
 
 export type FullUser = User & {
   lootBoxes: LootBox[];
+  nfts: NFT[];
 };
+
+export type NFT = {
+  id: string;
+  index : number;
+  userId: string;
+}
