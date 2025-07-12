@@ -2,10 +2,11 @@
 
 import { createAppKit } from '@reown/appkit/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { type Config, cookieToInitialState, WagmiProvider } from 'wagmi';
 import { networks, projectId, wagmiAdapter } from '@/config';
 import Pusher from 'pusher-js';
+import { LootBoxDialog } from '@/app/scan/components/LootBoxDialog';
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,8 @@ export function PusherProvider({
   children: ReactNode;
   userId: string;
 }) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   useEffect(() => {
     if (!userId) return;
 
@@ -90,7 +93,7 @@ export function PusherProvider({
 
     channel.bind('lootbox-received', (data: any) => {
       console.log('Lootbox received:', data);
-      // Handle lootbox received event
+      setDialogOpen(true);
     });
 
     return () => {
@@ -100,5 +103,13 @@ export function PusherProvider({
     };
   }, [userId]);
 
-  return <>{children}</>;
+return (
+  <>
+    {children}
+    <LootBoxDialog
+      showLootBoxDialog={dialogOpen}
+      setShowLootBoxDialog={setDialogOpen}
+    />
+  </>
+);
 }
