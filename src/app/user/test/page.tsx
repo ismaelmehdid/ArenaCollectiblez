@@ -1,9 +1,10 @@
 'use client';
 import { ConnectButton } from '@/components/ConnectButton';
-import { useAccount, useWriteContract } from 'wagmi';
+import { useAccount, useReadContract, useWriteContract } from 'wagmi';
 import ArenaCollectibleNFT from '../../../../artifacts/contracts/NFT.sol/ArenaCollectibleNFT.json';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useEffect } from 'react';
 
 export function MintNFTButton() {
   const { data: hash, writeContract, isPending, error } = useWriteContract();
@@ -35,11 +36,11 @@ export function MintNFTButton() {
 
       // Step 2: Mint the NFT with the IPFS URI
       writeContract({
-        address: '0xaF6AAb8aD86Cf596472491e308547a0b711B9df3',
+        address: '0x9cBC8E64B66448545f45876ccCb545442b0bFA54',
         abi: ArenaCollectibleNFT.abi,
         functionName: 'mint',
         args: [address, tokenUri],
-        value: BigInt('1000000000000000000'), // 1 CHZ in wei
+        value: BigInt('1000000000000000'), // 0.001 CHZ in wei
       });
     } catch (error) {
       console.error('Error minting NFT:', error);
@@ -83,7 +84,7 @@ export function MintNFTButton() {
             ? 'Minting NFT...'
             : !address
               ? 'Connect Wallet'
-              : 'Mint NFT (1 CHZ)'}
+              : 'Mint NFT (0.001 CHZ)'}
       </Button>
 
       {mintError && (
@@ -109,8 +110,9 @@ export function MintNFTButton() {
 
 export default function Page() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
       <MintNFTButton />
+      <DisplayNFT idx={0} />
     </div>
   );
 }

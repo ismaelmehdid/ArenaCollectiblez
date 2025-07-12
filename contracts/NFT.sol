@@ -14,7 +14,7 @@ contract ArenaCollectibleNFT is ERC721URIStorage, Ownable {
     }
 
     function mint(address to, string memory uri) public payable {
-        require(msg.value == 1 ether, "Minting requires exactly 1 CHZ");
+        require(msg.value == 0.001 ether, "Minting requires exactly 0.001 CHZ");
         _safeMint(to, nextTokenId);
         _setTokenURI(nextTokenId, uri);
         nextTokenId++;

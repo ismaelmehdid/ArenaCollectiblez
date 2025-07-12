@@ -1,8 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Plus, Star, Trophy } from 'lucide-react';
+import { Star, Trophy } from 'lucide-react';
 import { useState } from 'react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,6 +10,131 @@ import Image from 'next/image';
 import { InventoryTab } from './InventoryTab';
 import { BackgroundParticles } from '@/components/ui/BackgroundParticles';
 import LootBoxOpeningAnimation from './OpeningAnimation';
+import { useReadContract } from 'wagmi';
+import ArenaCollectibleNFT from '../../../../../artifacts/contracts/NFT.sol/ArenaCollectibleNFT.json';
+import { useEffect } from 'react';
+
+// Convert IPFS URI to gateway URL
+const convertIpfsToGateway = (ipfsUri: string) => {
+  if (ipfsUri && ipfsUri.startsWith('ipfs://')) {
+    const cid = ipfsUri.replace('ipfs://', '');
+    return `https://gateway.pinata.cloud/ipfs/${cid}`;
+  }
+  return ipfsUri;
+};
+
+interface IpfsImageProps {
+  ipfsUrl: string;
+  alt: string;
+  className?: string;
+}
+
+export function IpfsImage({ ipfsUrl, alt, className }: IpfsImageProps) {
+  // Remove protocol if present, leaving only the CID + path
+  const clean = ipfsUrl.replace(/^ipfs:\/\//, '');
+  const src = `https://gateway.pinata.cloud/ipfs/${clean}`;
+
+  return <img src={src} alt={alt} className={className} />;
+}
+
+export function DisplayNFT({ idx }: { idx: number }) {
+  const { data: nftUri } = useReadContract({
+    address: '0x9cBC8E64B66448545f45876ccCb545442b0bFA54',
+    abi: ArenaCollectibleNFT.abi,
+    functionName: 'tokenURI',
+    args: [idx],
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [isImage, setIsImage] = useState(false);
+
+  useEffect(() => {
+    const checkContentType = async () => {
+      if (!nftUri) return;
+
+      setLoading(true);
+      try {
+        const gatewayUrl = convertIpfsToGateway(nftUri as string);
+        const response = await fetch(gatewayUrl);
+        const contentType = response.headers.get('content-type');
+
+        // Check if it's an image
+        if (contentType && contentType.startsWith('image/')) {
+          setIsImage(true);
+        } else {
+          setIsImage(false);
+        }
+      } catch (error) {
+        console.error('Error checking content type:', error);
+        // Assume it's an image if we can't determine
+        setIsImage(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkContentType();
+  }, [nftUri]);
+
+  if (loading) {
+    return (
+      <div className="mt-6 p-6 bg-white rounded-lg shadow-lg max-w-md mx-auto">
+        <div className="animate-pulse">
+          <div className="bg-gray-300 h-64 rounded-lg mb-4"></div>
+          <div className="space-y-2">
+            <div className="bg-gray-300 h-4 rounded"></div>
+            <div className="bg-gray-300 h-4 rounded w-3/4"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!nftUri) {
+    return (
+      <div className="mt-6 p-6 bg-white rounded-lg shadow-lg max-w-md mx-auto">
+        <p className="text-gray-500 text-center">No NFT URI available</p>
+      </div>
+    );
+  }
+
+  const gatewayUrl = convertIpfsToGateway(nftUri as string);
+
+  return (
+    <>
+      <div className="relative overflow-hidden bg-black rounded-2xl transition-all duration-500 hover:scale-105">
+        <div style={{ aspectRatio: '1024 / 1536' }}>
+          <img
+            src={gatewayUrl}
+            alt={`NFT #${idx}`}
+            className="absolute inset-0 w-full h-full object-cover rounded-2xl"
+          />
+
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 opacity-20 rounded-2xl" />
+
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6 rounded-b-2xl">
+            <div className="space-y-3">
+              <h3 className="text-xl font-bold text-white">
+                Arena Collectible #{idx}
+              </h3>
+              <p className="text-gray-300 text-sm">Unique collectible NFT</p>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Token ID</p>
+                  <p className="text-2xl font-bold text-white">#{idx}</p>
+                </div>
+                <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white">
+                  View Details
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
 
 const rarityConfig = {
   Common: { gradient: 'from-gray-400 to-gray-600', color: 'text-gray-400' },
@@ -198,73 +322,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
 
               <TabsContent value="collection" className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {userNFTs.map((nft, index) => (
-                    <motion.div
-                      key={nft.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <Card className="overflow-hidden bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300">
-                        <div className="relative h-48 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-                          <div
-                            className={`w-20 h-20 bg-gradient-to-br ${rarityConfig[nft.rarity].gradient} rounded-full flex items-center justify-center`}
-                          >
-                            <span className="text-white font-bold text-lg">
-                              {nft.name
-                                .split(' ')
-                                .map((word) => word[0])
-                                .join('')}
-                            </span>
-                          </div>
-
-                          <Badge
-                            className={`absolute top-3 left-3 bg-gradient-to-r ${rarityConfig[nft.rarity].gradient} text-white border-0`}
-                          >
-                            {nft.rarity}
-                          </Badge>
-
-                          {nft.listed && (
-                            <Badge className="absolute top-3 right-3 bg-green-500 text-white border-0">
-                              Listed
-                            </Badge>
-                          )}
-                        </div>
-
-                        <div className="p-4">
-                          <h3 className="text-lg font-bold text-white mb-1">
-                            {nft.name}
-                          </h3>
-                          <p className="text-gray-400 text-sm mb-3">
-                            Acquired: {nft.acquired}
-                          </p>
-
-                          {nft.listed ? (
-                            <div className="flex items-center justify-between">
-                              <span className="text-white font-bold">
-                                {nft.price} ETH
-                              </span>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="border-white/20 text-white hover:bg-white/10"
-                              >
-                                Edit Listing
-                              </Button>
-                            </div>
-                          ) : (
-                            <Button
-                              size="sm"
-                              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-                            >
-                              <Plus className="w-3 h-3 mr-1" />
-                              List for Sale
-                            </Button>
-                          )}
-                        </div>
-                      </Card>
-                    </motion.div>
-                  ))}
+                  <DisplayNFT idx={0} />
                 </div>
               </TabsContent>
 

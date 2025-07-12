@@ -19,6 +19,8 @@
     "@biomejs/biome": "^2.1.1",
     "@faker-js/faker": "^9.9.0",
     "@hookform/resolvers": "^5.1.1",
+    "@nomicfoundation/hardhat-toolbox": "^6.0.0",
+    "@openzeppelin/contracts": "^5.3.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
@@ -59,6 +61,7 @@
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.44.2",
     "embla-carousel-react": "^8.6.0",
+    "ethers": "^6.15.0",
     "faker": "^6.6.6",
     "framer-motion": "^12.23.1",
     "html5-qrcode": "^2.3.8",
@@ -104,6 +107,7 @@
     "pino-pretty": "^13.0.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.3",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
