@@ -79,6 +79,7 @@ export const LootBoxDialog = ({
   const handleCheckInventory = () => {
     setStep('selection');
     setSelectedBox(null);
+    handleDialogClose(false);
   };
 
   const handleDialogClose = (open: boolean) => {

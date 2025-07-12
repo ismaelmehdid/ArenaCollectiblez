@@ -140,7 +140,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
                   {user.userName}
                 </h2>
                 <p className="text-gray-300 mb-4">
-                  Joined {new Date(user.createdAt).toLocaleDateString()}
+                  Joined {new Date(user.createdAt).toDateString()}
                 </p>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

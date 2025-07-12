@@ -5,14 +5,15 @@ import { BackgroundParticles } from '@/components/ui/BackgroundParticles';
 import { sampleNFTs } from '../../../../backend/domain/types';
 import { FiltersPanel } from './FiltersPanel';
 import { MarketplaceHeader } from './MarketplaceHeader';
-import { NFTGrid } from './NFTGrid';
 import { NoResults } from './NoResults';
+import NFTGrid from './NFTGrid';
 
 export const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRarity, setSelectedRarity] = useState('All');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'price' | 'name'>('price');
+  
 
   const filteredNFTs = sampleNFTs
     .filter(
