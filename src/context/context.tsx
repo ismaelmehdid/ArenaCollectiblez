@@ -107,6 +107,7 @@ return (
   <>
     {children}
     <LootBoxDialog
+      id={userId}
       open={dialogOpen}
       onOpenChange={setDialogOpen}
     />

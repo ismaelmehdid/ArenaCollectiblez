@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { LootBoxType } from '../database/schema';
 
 export enum Rarity {
   Common = 'Common',
@@ -87,6 +88,20 @@ export const UserSchema = z.object({
   userName: z.string(),
   avatar: z.string(),
   walletAddress: z.string().optional(),
+  createdAt: z.string(),
 });
 
+export const LootBoxSchema = z.object({
+  id: z.string(),
+  type: z.nativeEnum(LootBoxType),
+  name: z.string(),
+  image: z.string(),
+});
+
+export type LootBox = z.infer<typeof LootBoxSchema>;
+
 export type User = z.infer<typeof UserSchema>;
+
+export type FullUser = User & {
+  lootBoxes: LootBox[];
+};

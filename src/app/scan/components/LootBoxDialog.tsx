@@ -14,43 +14,51 @@ import { toast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { LootBoxType } from '../../../../backend/database/schema';
 import { fetchReceiveLootBox } from '../../../../backend/data_access_layer/lootbox';
-
-interface LootBox {
-  id: string;
-  type: LootBoxType;
-  name: string;
-  image: string;
+import { LootBox } from '../../../../backend/domain/types';
+import { useRouter } from 'next/navigation';
+interface LootBoxOption {
+  box: LootBox;
   teamColor: string;
 }
 
-const lootBoxOptions: LootBox[] = [
+const lootBoxOptions: LootBoxOption[] = [
   {
-    id: 'StormfoxFC',
-    type: LootBoxType.StormfoxFC,
-    name: 'StormFox FC',
-    image: '/lootBoxStormFox.png',
+    box: {
+      id: 'StormfoxFC',
+      type: LootBoxType.StormfoxFC,
+      name: 'StormFox FC',
+      image: '/lootBoxStormFox.png',
+    },
     teamColor: 'from-[#0033A0] to-[#DA291C]',
   },
   {
-    id: 'BlazehartSC',
-    type: LootBoxType.BlazehartSC,
-    name: 'Blazehart SC',
-    image: '/lootBoxBlazehart.png',
+    box: {
+      id: 'BlazehartSC',
+      type: LootBoxType.BlazehartSC,
+      name: 'Blazehart SC',
+      image: '/lootBoxBlazehart.png',
+    },
     teamColor: 'from-[#014421] to-[#228B22]',
   },
 ];
 
 interface LootBoxDialogProps {
+  id: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export const LootBoxDialog = ({ open, onOpenChange }: LootBoxDialogProps) => {
+export const LootBoxDialog = ({
+  id,
+  open,
+  onOpenChange,
+}: LootBoxDialogProps) => {
   const [step, setStep] = useState<'selection' | 'confirmation'>('selection');
-  const [selectedBox, setSelectedBox] = useState<LootBox | null>(null);
+  const [selectedBox, setSelectedBox] = useState<LootBoxOption| null>(null);
+  const router = useRouter();
 
-  const handleBoxSelect = async (box: LootBox) => {
-    const receiveLootBox = await fetchReceiveLootBox(box.type);
+  const handleBoxSelect = async (box: LootBoxOption) => {
+    const receiveLootBox = await fetchReceiveLootBox(box.box.type);
     if (!receiveLootBox) {
       toast({
         title: 'Error',
@@ -64,7 +72,7 @@ export const LootBoxDialog = ({ open, onOpenChange }: LootBoxDialogProps) => {
     setStep('confirmation');
     toast({
       title: 'Loot Box Received!',
-      description: `You've received a ${box.name} loot box!`,
+      description: `You've received a ${box.box.name} loot box!`,
     });
   };
 
@@ -77,6 +85,7 @@ export const LootBoxDialog = ({ open, onOpenChange }: LootBoxDialogProps) => {
     if (!open) {
       setStep('selection');
       setSelectedBox(null);
+      router.push(`/user/${id}`);
     }
     onOpenChange(open);
   };
@@ -105,7 +114,7 @@ export const LootBoxDialog = ({ open, onOpenChange }: LootBoxDialogProps) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
                 {lootBoxOptions.map((box) => (
                   <motion.div
-                    key={box.id}
+                    key={box.box.id}
                     className="group cursor-pointer"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -131,8 +140,8 @@ export const LootBoxDialog = ({ open, onOpenChange }: LootBoxDialogProps) => {
                           className="w-32 h-32 sm:w-36 sm:h-36 mx-auto bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm"
                         >
                           <Image
-                            src={box.image}
-                            alt={`${box.name} Loot Box`}
+                            src={box.box.image}
+                            alt={`${box.box.name} Loot Box`}
                             width={96}
                             height={96}
                             className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
@@ -140,7 +149,7 @@ export const LootBoxDialog = ({ open, onOpenChange }: LootBoxDialogProps) => {
                         </motion.div>
 
                         <h3 className="text-xl font-bold text-white">
-                          {box.name}
+                          {box.box.name}
                         </h3>
                         <p className="text-white/80 text-sm">
                           Mystery Loot Box
@@ -187,7 +196,7 @@ export const LootBoxDialog = ({ open, onOpenChange }: LootBoxDialogProps) => {
                   Loot Box Received!
                 </DialogTitle>
                 <DialogDescription className="text-gray-300 text-center">
-                  Your {selectedBox?.name} loot box has been added to your
+                  Your {selectedBox?.box.name} loot box has been added to your
                   inventory
                 </DialogDescription>
               </DialogHeader>
@@ -226,8 +235,8 @@ export const LootBoxDialog = ({ open, onOpenChange }: LootBoxDialogProps) => {
                     />
                     <div className="relative z-10 w-full h-full flex items-center justify-center">
                       <Image
-                        src={selectedBox?.image || '/defaultLootBox.png'}
-                        alt={`${selectedBox?.name} Loot Box`}
+                        src={selectedBox?.box.image || ''}
+                        alt={`${selectedBox?.box.name} Loot Box`}
                         width={120}
                         height={120}
                         className="w-24 h-24 sm:w-28 sm:h-28 object-contain"
@@ -261,7 +270,7 @@ export const LootBoxDialog = ({ open, onOpenChange }: LootBoxDialogProps) => {
 
                 <div className="text-center space-y-2">
                   <h3 className="text-xl font-bold text-white">
-                    {selectedBox?.name}
+                    {selectedBox?.box.name}
                   </h3>
                   <p className="text-green-400 font-medium">
                     ✓ Added to Inventory

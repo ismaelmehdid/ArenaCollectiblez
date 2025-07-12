@@ -51,3 +51,4 @@ export const lootBoxPending = pgTable('loot_box_pending', {
 });
 
 export type UserSelect = typeof user.$inferSelect;
+export type LootBoxSelect = typeof lootBox.$inferSelect;
