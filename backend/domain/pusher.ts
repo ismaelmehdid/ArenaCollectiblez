@@ -1,3 +1,4 @@
+import 'server-only';
 import Pusher from 'pusher';
 
 const APP_ID = process.env.PUSHER_APP_ID;
@@ -9,14 +10,10 @@ if (!APP_ID || !KEY || !SECRET || !CLUSTER) {
   throw new Error('Pusher configuration is not set properly');
 }
 
-const pusher = new Pusher({
+export const pusher = new Pusher({
   appId: APP_ID,
   key: KEY,
   secret: SECRET,
   cluster: CLUSTER,
   useTLS: true,
 });
-
-// await pusher.trigger(`private-user-${userId}`, 'lootbox-opened', {
-//   message: 'You got a lootbox!',
-// });
