@@ -2,8 +2,8 @@ import { faker } from '@faker-js/faker';
 import { and, eq } from 'drizzle-orm';
 import { err, ok, Result } from 'neverthrow';
 import { db } from '../database/connection';
-import { LootBoxSelect, UserSelect, lootBox, user } from '../database/schema';
-import { FullUser, User } from '../domain/types';
+import { LootBoxSelect, UserSelect, lootBox, nft, user } from '../database/schema';
+import { FullUser, NFT, User } from '../domain/types';
 
 function rowToUser(row: UserSelect): User {
   if (!row) {
@@ -18,7 +18,7 @@ function rowToUser(row: UserSelect): User {
   };
 }
 
-function rowToFullUser(UserRow: UserSelect, lootboxeRows: LootBoxSelect[]): FullUser {
+function rowToFullUser(UserRow: UserSelect, lootboxeRows: LootBoxSelect[], nfts: NFT[]): FullUser {
   if (!UserRow || !lootboxeRows) {
     throw new Error('Row is undefined or null');
   }
@@ -33,6 +33,11 @@ function rowToFullUser(UserRow: UserSelect, lootboxeRows: LootBoxSelect[]): Full
       type: lootBox.type,
       name: lootBox.name,
       image: lootBox.image,
+    })),
+    nfts: nfts.map((nft) => ({
+      id: nft.id,
+      index: nft.index,
+      userId: nft.userId,
     })),
   };
 }
@@ -94,6 +99,7 @@ export async function getFullUser(
       .select()
       .from(user)
       .leftJoin(lootBox, eq(lootBox.user_id, user.id))
+      .leftJoin(nft, eq(nft.user_id, user.id))
       .where(eq(user.id, userId));
 
     if (rows.length === 0 || !rows[0].user) {
@@ -104,8 +110,15 @@ export async function getFullUser(
     const lootBoxes = rows
       .filter((r) => r.loot_box !== null)
       .map((r) => r.loot_box!);
+    const nfts = rows
+      .filter((r) => r.nft !== null)
+      .map((r) => ({
+        id: r.nft!.id,
+        index: r.nft!.index,
+        userId: r.nft!.user_id,
+      })); 
 
-    return ok(rowToFullUser(userRow, lootBoxes));
+    return ok(rowToFullUser(userRow, lootBoxes, nfts));
   } catch (error) {
     console.error('Error getting full user:', error);
     return err(new Error('Failed to get full user'));

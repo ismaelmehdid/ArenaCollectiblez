@@ -50,5 +50,14 @@ export const lootBoxPending = pgTable('loot_box_pending', {
     .references(() => user.id, { onDelete: 'cascade' }).unique(),
 });
 
+export const nft = pgTable('nft', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  index: integer('index').notNull(),
+  user_id: uuid('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+});
+
 export type UserSelect = typeof user.$inferSelect;
 export type LootBoxSelect = typeof lootBox.$inferSelect;
+export type NFTSelect = typeof nft.$inferSelect;
