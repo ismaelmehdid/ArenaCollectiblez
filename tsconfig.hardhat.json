@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "dist",
+    "target": "es2020",
+    "types": [
+      "node",
+      "hardhat"
+    ],
+    "moduleResolution": "node"
+  },
+  "include": [
+    "hardhat.config.ts",
+    "drizzle.config.ts",
+    "contracts",
+    "scripts",
+    "test"
+  ]
+}
