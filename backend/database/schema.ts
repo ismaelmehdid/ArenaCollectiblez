@@ -23,12 +23,12 @@ export function enumToPgEnum<T extends Record<string, any>>(
   return Object.values(myEnum).map((value: any) => `${value}`) as any;
 }
 
-export enum loobBoxType {
+export enum LootBoxType {
   BlazehartSC = 'BlazehartSC',
   StormfoxFC = 'StormfoxFC',
 }
 
-export const lootBoxType = pgEnum('applicantSource', enumToPgEnum(loobBoxType));
+const lootBoxType = pgEnum('applicantSource', enumToPgEnum(LootBoxType));
 
 export const lootBox = pgTable('loot_box', {
   id: uuid('id').defaultRandom().primaryKey(),

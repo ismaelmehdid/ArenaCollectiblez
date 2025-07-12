@@ -1,18 +1,26 @@
 import 'server-only';
 import { err, ok, Result } from 'neverthrow';
 import { db } from '../database/connection';
-import { loobBoxType, lootBox, lootBoxPending } from '../database/schema';
+import { LootBoxType, lootBox, lootBoxPending } from '../database/schema';
+import { eq } from 'drizzle-orm';
 
 export async function addLootBoxToUser(
   userId: string,
-  type: loobBoxType,
+  type: LootBoxType,
 ): Promise<Result<boolean, Error>> {
   try {
     let image: string;
-    if (type === loobBoxType.BlazehartSC) {
+    if (type === LootBoxType.BlazehartSC) {
       image = 'https://i.postimg.cc/8czTKbV9/loot-Box-Blaze-Heart.png';
     } else {
       image = 'https://i.postimg.cc/ydVKxTWx/loot-Box-Storm-Fox.png';
+    }
+
+    const pendingLootBox = await getPendingLootBox(userId);
+    if (pendingLootBox.isErr() || !pendingLootBox.value) {
+      return err(new Error('No pending loot box found for user'));
+    } else {
+      await removePendingLootBox(userId);
     }
 
     await db.insert(lootBox).values({
@@ -45,6 +53,19 @@ export async function addPendingLootBox(
   } catch (error) {
     console.error('Error adding pending loot box:', error);
     return err(new Error('Failed to add pending loot box'));
+  }
+}
+
+export async function removePendingLootBox(
+  userId: string,
+): Promise<Result<boolean, Error>> {
+  try {
+    await db.delete(lootBoxPending).where(eq(lootBoxPending.user_id, userId));
+
+    return ok(true);
+  } catch (error) {
+    console.error('Error removing pending loot box:', error);
+    return err(new Error('Failed to remove pending loot box'));
   }
 }
 
