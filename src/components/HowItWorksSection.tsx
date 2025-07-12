@@ -1,85 +1,111 @@
 'use client';
-import { motion } from 'framer-motion';
-import { Gift, Scan, Star } from 'lucide-react';
+import { motion } from "framer-motion";
+import { Scan, Gift, Trophy, ArrowRight } from "lucide-react";
 
 const steps = [
   {
     icon: Scan,
-    title: 'Scan Ticket',
-    description:
-      'Point your phone at any stadium ticket QR code to get started',
+    title: "SCAN",
+    description: "Sports ticket QR code or special codes",
+    color: "from-blue-500 to-cyan-500"
   },
   {
     icon: Gift,
-    title: 'Receive Loot Box',
-    description:
-      'Instantly receive a mystery loot box with your unique collectible inside',
+    title: "Receive Loot Box",
+    description: "Unlock exclusive rewards and collectibles",
+    color: "from-purple-500 to-pink-500"
   },
   {
-    icon: Star,
-    title: 'Get Exclusive NFT',
-    description:
-      'Discover rare digital memorabilia with different rarity levels and values',
-  },
+    icon: Trophy,
+    title: "Collect",
+    description: "Win exclusive prizes and rare collectibles",
+    color: "from-orange-500 to-red-500"
+  }
 ];
 
 const HowItWorksSection = () => {
   return (
-    <section className="py-32 px-4">
-      <div className="container mx-auto max-w-6xl">
+    <section id="how-it-works" className="min-h-screen flex items-center justify-center py-32 px-4 bg-gradient-to-br from-slate-900/50 to-purple-900/30 backdrop-blur-sm snap-start">
+      <div className="container mx-auto max-w-7xl">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-center mb-20"
+          className="text-center mb-24"
         >
-          <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
+          <h2 className="text-7xl md:text-8xl font-black text-white mb-8 tracking-tight">
             How It Works
           </h2>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Three simple steps to turn your ticket into treasure
-          </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-12 relative">
+        <div className="grid md:grid-cols-3 gap-16 relative">
           {steps.map((step, index) => (
             <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 40 }}
+              key={crypto.randomUUID()}
+              initial={{ opacity: 0, y: 80 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.2, duration: 0.8 }}
+              transition={{ delay: index * 0.3, duration: 0.8 }}
               viewport={{ once: true }}
               className="text-center group relative"
             >
               {/* Step number */}
-              <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
+              <div className={`absolute -top-8 -left-8 w-16 h-16 bg-gradient-to-r ${step.color} rounded-full flex items-center justify-center text-white font-black text-2xl z-10`}>
                 {index + 1}
               </div>
 
-              {/* Icon container */}
-              <div className="relative mx-auto w-32 h-32 mb-8">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-3xl group-hover:from-purple-500/30 group-hover:to-pink-500/30 transition-all duration-300" />
-                <div className="relative w-full h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-                  <step.icon className="w-16 h-16 text-white" />
-                </div>
+              {/* Large Icon Container */}
+              <div className="relative mx-auto w-48 h-48 mb-12">
+                <div className={`absolute inset-0 bg-gradient-to-r ${step.color} rounded-full opacity-20 group-hover:opacity-40 transition-all duration-500 animate-pulse`} />
+                <motion.div 
+                  className={`relative w-full h-full bg-gradient-to-r ${step.color} rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-2xl`}
+                  whileHover={{ rotate: 5 }}
+                >
+                  <step.icon className="w-24 h-24 text-white" />
+                </motion.div>
               </div>
 
               {/* Content */}
-              <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
-                {step.title}
-              </h3>
-              <p className="text-gray-300 text-lg leading-relaxed max-w-sm mx-auto">
+              <h3 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">{step.title}</h3>
+              <p className="text-gray-300 text-xl leading-relaxed max-w-xs mx-auto">
                 {step.description}
               </p>
 
-              {/* Connector line */}
+              {/* Curved Arrow Connector */}
               {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-16 left-full w-12 h-0.5 bg-gradient-to-r from-purple-500/50 to-transparent" />
+                <motion.div 
+                  className="hidden md:block absolute top-24 left-full transform translate-x-8"
+                  animate={{ x: [0, 10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <ArrowRight className="w-12 h-12 text-purple-400 opacity-60" />
+                </motion.div>
               )}
             </motion.div>
           ))}
         </div>
+
+        {/* Floating particles for visual appeal */}
+        {Array.from({ length: 12 }).map((_, i) => (
+          <motion.div
+            key={crypto.randomUUID()}
+            className="absolute w-2 h-2 bg-purple-400 rounded-full opacity-30"
+            animate={{
+              x: [Math.random() * 100, Math.random() * 100],
+              y: [Math.random() * 100, Math.random() * 100],
+              opacity: [0.3, 0.8, 0.3],
+            }}
+            transition={{
+              duration: Math.random() * 10 + 5,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+            style={{
+              left: Math.random() * 100 + "%",
+              top: Math.random() * 100 + "%",
+            }}
+          />
+        ))}
       </div>
     </section>
   );
