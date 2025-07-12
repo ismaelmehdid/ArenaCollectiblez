@@ -17,6 +17,9 @@ import { checkPendingLootBox } from '../../backend/domain/lootbox';
 export const metadata: Metadata = {
   title: 'ArenaCollectiblez',
   description: 'dApp on chiliz chain',
+  icons: {
+    icon: '/arena-logo.png',
+  },
 };
 
 export default async function Layout({
@@ -29,10 +32,7 @@ export default async function Layout({
   const user = await getAuthorizedUser();
 
   if (user.isOk()) {
-    await checkPendingLootBox(
-      user.isOk() ? user.value.id : '',
-  );
-
+    await checkPendingLootBox(user.isOk() ? user.value.id : '');
   }
   const navItems = [
     {
