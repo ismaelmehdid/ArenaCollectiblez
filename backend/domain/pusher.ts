@@ -1,17 +1,22 @@
 import Pusher from 'pusher';
 
-PUSHER_APP_ID="2021483"
-PUSHER_APP_KEY="95b243e9b86aaca1c94b"
-PUSHER_APP_SECRET="0ebd337ce5ff2a57ec06"
-PUSHER_APP_CLUSTER="eu"
+const APP_ID = process.env.PUSHER_APP_ID;
+const KEY = process.env.PUSHER_APP_KEY;
+const SECRET = process.env.PUSHER_APP_SECRET;
+const CLUSTER = process.env.PUSHER_APP_CLUSTER;
+
+if (!APP_ID || !KEY || !SECRET || !CLUSTER) {
+  throw new Error('Pusher configuration is not set properly');
+}
+
 const pusher = new Pusher({
-  appId: process.env.PUSHER_APP_ID!,
-  key: process.env.PUSHER_KEY!,
-  secret: process.env.PUSHER_SECRET!,
-  cluster: 'mt1',
+  appId: APP_ID,
+  key: KEY,
+  secret: SECRET,
+  cluster: CLUSTER,
   useTLS: true,
 });
 
-await pusher.trigger(`private-user-${userId}`, 'lootbox-opened', {
-  message: 'You got a lootbox!',
-});
+// await pusher.trigger(`private-user-${userId}`, 'lootbox-opened', {
+//   message: 'You got a lootbox!',
+// });

@@ -10,7 +10,7 @@ import {
   NavbarLogo,
   NavItems,
 } from '@/components/ui/resizable-navbar';
-import { ContextProvider, WebSocketProvider } from '@/context/context';
+import { ContextProvider } from '@/context/context';
 import { getAuthorizedUser } from '../../backend/domain/auth';
 
 export const metadata: Metadata = {
@@ -63,7 +63,6 @@ export default async function Layout({
     <html lang="en">
       <body>
         <ContextProvider cookies={cookies}>
-          <WebSocketProvider userId={user.isOk() ? user.value.id : ''}>
             <Navbar className="px-2 py-1.5" navItems={navItems}>
               <NavBody>
                 <NavbarLogo />
@@ -72,7 +71,6 @@ export default async function Layout({
               </NavBody>
             </Navbar>
             {children}
-          </WebSocketProvider>
         </ContextProvider>
       </body>
     </html>
