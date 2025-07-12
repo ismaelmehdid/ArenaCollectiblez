@@ -1,3 +1,4 @@
+'use server';
 import HowItWorksSection from '@/components/HowItWorksSection';
 import PartnershipSection from '@/components/ParthershipSection';
 import { ThreeDMarqueeDemo } from '@/components/ThreeDMarqueeDemo';

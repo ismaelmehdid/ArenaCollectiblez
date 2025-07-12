@@ -3,12 +3,19 @@ import { ThreeDMarquee } from '@/components/ui/3d-marquee';
 import HeroSection from './HeroSection';
 import { Button } from './ui/button';
 import { ChevronDown } from 'lucide-react';
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
 
 export function ThreeDMarqueeDemo() {
   const scrollToNextSection = () => {
-    const nextSection = document.getElementById('how-it-works');
-    nextSection?.scrollIntoView({ behavior: 'smooth' });
+    const target = document.getElementById('how-it-works');
+    if (target) {
+      const offsetTop = target.getBoundingClientRect().top + window.pageYOffset;
+
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth',
+      });
+    }
   };
   const images = [
     '/r_sample-nft-4.png',
@@ -49,7 +56,6 @@ export function ThreeDMarqueeDemo() {
       <div className="pointer-events-none">
         <ThreeDMarquee images={images} />
       </div>
-      {/* Overlay Hero Section */}
 
       <div className="absolute inset-0 flex items-center justify-center">
         <HeroSection />

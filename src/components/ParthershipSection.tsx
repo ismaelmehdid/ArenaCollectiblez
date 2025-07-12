@@ -18,9 +18,8 @@ const PartnershipHighlightSection = () => {
           <Card className="p-12 bg-gradient-to-br from-black/60 to-purple-900/40 backdrop-blur-xl border border-purple-500/30 hover:border-purple-400/50 transition-all duration-300 group relative overflow-hidden">
             {/* Limited Time Badge */}
             <motion.div
-              animate={{ pulse: [1, 1.1, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="absolute top-6 right-6 bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2"
+              className="absolute top-6 right-6 z-20 bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2"
             >
               <Clock className="w-4 h-4" />
               LIMITED TIME
@@ -32,8 +31,9 @@ const PartnershipHighlightSection = () => {
                 <h3 className="text-4xl md:text-5xl font-black text-white mb-8 leading-tight">
                   Exclusive Raffle for
                   <span className="block bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                    StormFox SC Cardholders
+                    StormFox SC
                   </span>
+                  Cardholders
                 </h3>
 
                 <div className="space-y-6 mb-8">
