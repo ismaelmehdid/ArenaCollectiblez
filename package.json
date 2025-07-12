@@ -105,10 +105,5 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.3",
     "typescript": "^5"
-  },
-  "pnpm": {
-    "ignoredBuiltDependencies": [
-      "canvas"
-    ]
   }
 }
