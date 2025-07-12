@@ -7,16 +7,18 @@ import RecentNFTsSection from '@/components/RecentNFTsSection';
 import { BackgroundParticles } from '@/components/ui/BackgroundParticles';
 import { Button } from '@/components/ui/button';
 import { ConnectButton } from '@/components/ConnectButton';
-import { useAccount, useWriteContract } from 'wagmi';
+import { useAccount, useChainId, useWriteContract } from 'wagmi';
 import { useState } from 'react';
 import ArenaCollectibleNFT from '../../artifacts/contracts/NFT.sol/ArenaCollectibleNFT.json';
 
 export function MintNFTButton() {
   const { data: hash, writeContract, isPending, error } = useWriteContract();
   const { address } = useAccount();
+  const chainId = useChainId();
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [mintError, setMintError] = useState<string | null>(null);
 
+  console.log('chainId', chainId);
   async function handleMint() {
     if (!address) {
       setMintError('Please connect your wallet first');
@@ -28,7 +30,7 @@ export function MintNFTButton() {
 
     try {
       // Step 1: Generate random image and get IPFS CID
-      const response = await fetch('/api/random-image-cid/');
+      const response = await fetch('/api/random-image-cid');
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(

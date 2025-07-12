@@ -32,12 +32,6 @@ export const spicyTestnet = /*#__PURE__*/ defineChain({
       url: 'https://testnet.chiliscan.com/',
     },
   },
-  contracts: {
-    multicall3: {
-      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 1,
-    },
-  },
 });
 
 export const networks = [spicyTestnet] as [AppKitNetwork, ...AppKitNetwork[]];
