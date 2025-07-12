@@ -1,0 +1,1 @@
+ALTER TABLE "loot_box_pending" ADD CONSTRAINT "loot_box_pending_user_id_unique" UNIQUE("user_id");
