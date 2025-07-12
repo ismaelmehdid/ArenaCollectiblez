@@ -338,6 +338,7 @@ export async function generateRandomImage(): Promise<Result<NFTImage, Error>> {
     return err(generateRandomImageResult.error);
   }
   const image = generateRandomImageResult.value;
+  console.log('image', image);
   const generateNFTResult = await NFTRepository.generateNFT(image);
   if (generateNFTResult.isErr()) {
     return err(generateNFTResult.error);
