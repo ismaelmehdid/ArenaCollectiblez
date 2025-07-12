@@ -8,6 +8,15 @@ export enum Rarity {
   Legendary = 'Legendary',
 }
 
+export type ImageRarity = 'common' | 'rare' | 'epic' | 'legendary';
+
+export type NFTImage = {
+  rarity: ImageRarity;
+  image: Buffer;
+  cid: string;
+};
+
+
 export const sampleNFTs = [
   {
     id: '1',

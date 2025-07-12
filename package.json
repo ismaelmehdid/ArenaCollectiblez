@@ -52,6 +52,7 @@
     "@tabler/icons-react": "^3.34.0",
     "@tanstack/react-query": "^5.82.0",
     "biome": "^0.3.3",
+    "canvas": "^3.1.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -64,10 +65,12 @@
     "input-otp": "^1.4.2",
     "lucide-react": "^0.525.0",
     "motion": "^12.23.1",
+    "networks": "link:@reown/appkit/networks",
     "neverthrow": "^8.2.0",
     "next": "15.3.5",
     "next-themes": "^0.4.6",
     "pg": "^8.16.3",
+    "pinata": "^2.4.9",
     "postgres": "^3.4.7",
     "pusher": "^5.2.0",
     "pusher-js": "^8.4.0",
@@ -91,14 +94,21 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^24",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
     "autoprefixer": "^10.4.21",
     "drizzle-kit": "^0.31.4",
     "eslint": "^9",
     "eslint-config-next": "15.3.5",
+    "hardhat": "^2.25.0",
+    "pino-pretty": "^13.0.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.3",
     "typescript": "^5"
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "canvas"
+    ]
   }
 }

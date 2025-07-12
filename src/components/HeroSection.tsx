@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { MintNFTButton } from '@/app/page';
 
 const HeroSection = () => {
   const router = useRouter();
@@ -55,6 +56,7 @@ const HeroSection = () => {
               <Sparkles className="w-8 h-8 mr-4" />
               Try It Now
             </Button>
+            <MintNFTButton />
           </motion.div>
         </motion.div>
       </div>
