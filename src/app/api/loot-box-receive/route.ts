@@ -3,6 +3,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { addPendingLootBox } from '../../../../backend/infrastructure/lootBox';
 import { veriftUer } from '../../../../backend/infrastructure/user';
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+if (!baseUrl) {
+  throw new Error('NEXT_PUBLIC_BASE_URL is not defined');
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const cookieStore = await cookies();
@@ -32,6 +37,21 @@ export async function POST(req: NextRequest) {
     console.error('Failed to add pending loot box:', addLootBoxPending.error);
     return NextResponse.json(
       { error: 'Failed to add pending loot box' },
+      { status: 500 },
+    );
+  }
+
+  const triggerLootBox = await fetch(`${baseUrl}/api/trigger-loot-box-receive/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ userId }),
+  });
+  if (!triggerLootBox.ok) {
+    console.error('Failed to trigger loot box receive:', await triggerLootBox.text());
+    return NextResponse.json(
+      { error: 'Failed to trigger loot box receive' },
       { status: 500 },
     );
   }
