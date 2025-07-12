@@ -2,9 +2,10 @@
 
 import { createAppKit } from '@reown/appkit/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { type Config, cookieToInitialState, WagmiProvider } from 'wagmi';
 import { networks, projectId, wagmiAdapter } from '@/config';
+import Pusher from 'pusher-js';
 
 const queryClient = new QueryClient();
 
@@ -65,3 +66,39 @@ export function ContextProvider({
   );
 }
 
+const APP_KEY = process.env.NEXT_PUBLIC_PUSHER_APP_KEY;
+const APP_CLUSTER = process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER;
+
+export function PusherProvider({
+  children,
+  userId,
+}: {
+  children: ReactNode;
+  userId: string;
+}) {
+  useEffect(() => {
+    if (!userId) return;
+
+    if (!APP_KEY || !APP_CLUSTER) {
+      throw new Error('Pusher configuration is not set properly');
+    }
+    const pusher = new Pusher(APP_KEY, {
+      cluster: APP_CLUSTER,
+    });
+
+    const channel = pusher.subscribe(`user-${userId}`);
+
+    channel.bind('lootbox-received', (data: any) => {
+      console.log('Lootbox received:', data);
+      // Handle lootbox received event
+    });
+
+    return () => {
+      channel.unbind_all();
+      channel.unsubscribe();
+      pusher.disconnect();
+    };
+  }, [userId]);
+
+  return <>{children}</>;
+}
