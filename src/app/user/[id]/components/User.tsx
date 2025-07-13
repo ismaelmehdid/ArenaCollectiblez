@@ -415,7 +415,9 @@ const UserProfile = ({ user }: UserProfileProps) => {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-white">{12}</p>
+                    <p className="text-2xl font-bold text-white">
+                      {user.nfts.length}
+                    </p>
                     <p className="text-gray-400 text-sm">NFTs Owned</p>
                   </div>
                   <div className="text-center">
