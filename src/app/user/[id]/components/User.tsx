@@ -1,4 +1,4 @@
-'use client';
+  'use client';
 import { motion } from 'framer-motion';
 import { Star, Trophy, Loader2 } from 'lucide-react';
 import { useState } from 'react';
@@ -18,7 +18,8 @@ import {
 } from 'wagmi';
 import ArenaCollectibleNFT from '../../../../../artifacts/contracts/NFT.sol/ArenaCollectibleNFT.json';
 import { useEffect } from 'react';
-import { fetchDeleteLootBox, fetchReceiveLootBox } from '../../../../../backend/data_access_layer/lootbox';
+import { fetchDeleteLootBox } from '../../../../../backend/data_access_layer/lootbox';
+import { fetchAddNftToUser } from '../../../../../backend/data_access_layer/nft';
 
 // Convert IPFS URI to gateway URL
 const convertIpfsToGateway = (ipfsUri: string) => {
@@ -300,6 +301,10 @@ const UserProfile = ({ user }: UserProfileProps) => {
       const deleteResult = await fetchDeleteLootBox(boxId);
       if (!deleteResult) {
         console.error('Failed to delete lootbox');
+      }
+      const addNftResult = await fetchAddNftToUser(0);
+      if (!addNftResult) {
+        console.error('Failed to add NFT to user');
       }
     } catch (error) {
       console.error('Error minting NFT:', error);
