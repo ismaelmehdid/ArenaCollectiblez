@@ -218,6 +218,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [transactionConfirmed, setTransactionConfirmed] = useState(false);
   const [nftUri, setNftUri] = useState<string | undefined>(undefined);
+  const [currentBoxId, setCurrentBoxId] = useState<string | null>(null);
 
   // Wait for transaction receipt
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
@@ -239,10 +240,29 @@ const UserProfile = ({ user }: UserProfileProps) => {
   // Handle transaction confirmation
   useEffect(() => {
     if (isConfirmed && transactionHash) {
+      
       // Transaction confirmed on blockchain - start the animation
       setTransactionConfirmed(true);
       setShowOpeningAnimation(true);
       setTransactionHash(null);
+      
+      // Delete lootbox from database after successful transaction
+      const deleteLootBoxAfterConfirmation = async () => {
+        try {
+          // We need to get the boxId from the current lootbox being opened
+          // For now, we'll need to store the boxId when starting the process
+          if (currentBoxId) {
+            const deleteResult = await fetchDeleteLootBox(currentBoxId);
+            if (!deleteResult) {
+              console.error('Failed to delete lootbox after confirmation');
+            }
+          }
+        } catch (error) {
+          console.error('Error deleting lootbox after confirmation:', error);
+        }
+      };
+      
+      deleteLootBoxAfterConfirmation();
     }
   }, [isConfirmed, transactionHash]);
 
@@ -270,6 +290,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
     }
 
     setMintError(null);
+    setCurrentBoxId(boxId);
 
     try {
       // Step 1: Generate random image and get IPFS CID
@@ -294,12 +315,6 @@ const UserProfile = ({ user }: UserProfileProps) => {
         args: [address, tokenUri],
         value: BigInt('1000000000000000'), // 0.001 CHZ in wei
       });
-
-      // Delete lootbox from database
-      const deleteResult = await fetchDeleteLootBox(boxId);
-      if (!deleteResult) {
-        console.error('Failed to delete lootbox');
-      }
     } catch (error) {
       console.error('Error minting NFT:', error);
       setMintError(
@@ -318,6 +333,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
     setMintSuccess(true);
     setTransactionConfirmed(false);
     setNftUri(undefined);
+    setCurrentBoxId(null);
 
     // Reset error state
     setMintError(null);
