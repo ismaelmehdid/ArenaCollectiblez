@@ -4,6 +4,9 @@ ArenaCollectiblez is a fan engagement platform that transforms sports events int
 
 ---
 
+<img width="1470" height="756" alt="Screenshot 2025-07-13 at 08 28 22" src="https://github.com/user-attachments/assets/1ec2e346-a766-47f2-9e98-1e4e04860343" />
+
+
 ## 🚀 Getting Started
 
 Follow these steps to run the project locally:
