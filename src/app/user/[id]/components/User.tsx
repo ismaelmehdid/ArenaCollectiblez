@@ -99,9 +99,7 @@ export function DisplayNFT({ idx }: { idx: number }) {
 
   if (!nftUri) {
     return (
-      <div className="mt-6 p-6 bg-white rounded-lg shadow-lg max-w-md mx-auto">
-        <p className="text-gray-500 text-center">No NFT URI available</p>
-      </div>
+      <div/>
     );
   }
 
@@ -302,10 +300,6 @@ const UserProfile = ({ user }: UserProfileProps) => {
       if (!deleteResult) {
         console.error('Failed to delete lootbox');
       }
-      const addNftResult = await fetchAddNftToUser(0);
-      if (!addNftResult) {
-        console.error('Failed to add NFT to user');
-      }
     } catch (error) {
       console.error('Error minting NFT:', error);
       setMintError(
@@ -483,7 +477,9 @@ const UserProfile = ({ user }: UserProfileProps) => {
 
               <TabsContent value="collection" className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <DisplayNFT idx={0} />
+                  {Array.from({ length: 21 }, (_, i) => (
+                    <DisplayNFT key={i} idx={i} />
+                  ))}
                 </div>
               </TabsContent>
 
