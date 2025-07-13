@@ -28,7 +28,7 @@ export enum LootBoxType {
   StormfoxFC = 'StormfoxFC',
 }
 
-const lootBoxType = pgEnum('applicantSource', enumToPgEnum(LootBoxType));
+const lootBoxType = pgEnum('loot_box_type', enumToPgEnum(LootBoxType));
 
 export const lootBox = pgTable('loot_box', {
   id: uuid('id').defaultRandom().primaryKey(),

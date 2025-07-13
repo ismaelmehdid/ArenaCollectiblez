@@ -15,11 +15,13 @@ import { LootBoxDialog } from './LootboxDialog';
 type InventoryTabProps = {
   lootBoxes: LootBox[];
   handleOpenLootBox: (boxId: string) => void;
+  isWalletConnected?: boolean;
 };
 
 export function InventoryTab({
   lootBoxes,
   handleOpenLootBox,
+  isWalletConnected = true,
 }: InventoryTabProps) {
   const [openState, setOpenState] = useState(false);
   const [box, setBox] = useState<LootBox | null>(null);
@@ -100,15 +102,20 @@ export function InventoryTab({
                       size="sm"
                       className={clsx(
                         'w-full text-white bg-gradient-to-r',
-                        gradients.button,
+                        isWalletConnected
+                          ? gradients.button
+                          : 'from-gray-500 to-gray-600',
                       )}
                       onClick={() => {
-                        setBox(box);
-                        setOpenState(true);
+                        if (isWalletConnected) {
+                          setBox(box);
+                          setOpenState(true);
+                        }
                       }}
+                      disabled={!isWalletConnected}
                     >
                       <LockOpen className="w-3 h-3 mr-1" />
-                      Open Loot Box
+                      {isWalletConnected ? 'Open Loot Box' : 'Connect Wallet'}
                     </Button>
                   </div>
                 </Card>

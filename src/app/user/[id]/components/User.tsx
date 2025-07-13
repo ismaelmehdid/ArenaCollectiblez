@@ -10,7 +10,12 @@ import Image from 'next/image';
 import { InventoryTab } from './InventoryTab';
 import { BackgroundParticles } from '@/components/ui/BackgroundParticles';
 import LootBoxOpeningAnimation from './OpeningAnimation';
-import { useReadContract } from 'wagmi';
+import {
+  useReadContract,
+  useWriteContract,
+  useAccount,
+  useWaitForTransactionReceipt,
+} from 'wagmi';
 import ArenaCollectibleNFT from '../../../../../artifacts/contracts/NFT.sol/ArenaCollectibleNFT.json';
 import { useEffect } from 'react';
 
@@ -201,10 +206,52 @@ const sampleCards = [
 ];
 
 const UserProfile = ({ user }: UserProfileProps) => {
+  const { writeContract, isPending, error, data: hash } = useWriteContract();
+  const { address } = useAccount();
   const [activeTab, setActiveTab] = useState('inventory');
   const [showOpeningAnimation, setShowOpeningAnimation] = useState(false);
-  const [_revealedCard, setRevealedCard] = useState(null);
+  const [_revealedCard, setRevealedCard] = useState<any>(null);
   const [_isRedemptionComplete, setIsRedemptionComplete] = useState(false);
+  const [mintError, setMintError] = useState<string | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [mintSuccess, setMintSuccess] = useState(false);
+  const [transactionHash, setTransactionHash] = useState<string | null>(null);
+  const [transactionConfirmed, setTransactionConfirmed] = useState(false);
+  const [nftUri, setNftUri] = useState<string | undefined>(undefined);
+
+  // Wait for transaction receipt
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash: transactionHash as `0x${string}` | undefined,
+    });
+
+  // Handle successful minting
+  useEffect(() => {
+    if (mintSuccess) {
+      // Reset success state after a delay
+      const timer = setTimeout(() => {
+        setMintSuccess(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [mintSuccess]);
+
+  // Handle transaction confirmation
+  useEffect(() => {
+    if (isConfirmed && transactionHash) {
+      // Transaction confirmed on blockchain - start the animation
+      setTransactionConfirmed(true);
+      setShowOpeningAnimation(true);
+      setTransactionHash(null);
+    }
+  }, [isConfirmed, transactionHash]);
+
+  // Capture transaction hash when available
+  useEffect(() => {
+    if (hash) {
+      setTransactionHash(hash);
+    }
+  }, [hash]);
 
   const generateRandomCard = (rarity: string) => {
     const possibleCards = sampleCards.filter((card) => card.rarity === rarity);
@@ -214,23 +261,76 @@ const UserProfile = ({ user }: UserProfileProps) => {
     );
   };
 
-  const handleOpenLootBox = (boxId: string) => {
+  const handleOpenLootBox = async (boxId: string) => {
     console.log(`Opening loot box ${boxId}`);
-    setShowOpeningAnimation(true);
-    // Here you would implement the loot box opening logic
+
+    if (!address) {
+      setMintError('Please connect your wallet first');
+      return;
+    }
+
+    setMintError(null);
+
+    try {
+      // Step 1: Generate random image and get IPFS CID
+      setIsGeneratingImage(true);
+      const response = await fetch('/api/random-image-cid/');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || 'Failed to generate image and upload to IPFS',
+        );
+      }
+
+      const { cid } = await response.json();
+      const tokenUri = `ipfs://${cid}`;
+      setNftUri(tokenUri);
+
+      // Step 2: Mint the NFT with the IPFS URI
+      writeContract({
+        address: '0x9cBC8E64B66448545f45876ccCb545442b0bFA54',
+        abi: ArenaCollectibleNFT.abi,
+        functionName: 'mint',
+        args: [address, tokenUri],
+        value: BigInt('1000000000000000'), // 0.001 CHZ in wei
+      });
+    } catch (error) {
+      console.error('Error minting NFT:', error);
+      setMintError(
+        error instanceof Error ? error.message : 'Failed to mint NFT',
+      );
+    } finally {
+      setIsGeneratingImage(false);
+    }
   };
 
   const handleOpeningComplete = (rarity: string) => {
-    const card = generateRandomCard(rarity); // mint real NFT here
+    const card = generateRandomCard(rarity);
     setRevealedCard(card);
     setShowOpeningAnimation(false);
     setIsRedemptionComplete(true);
+    setMintSuccess(true);
+    setTransactionConfirmed(false);
+    setNftUri(undefined);
+
+    // Reset error state
+    setMintError(null);
   };
 
   if (showOpeningAnimation) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <LootBoxOpeningAnimation onComplete={handleOpeningComplete} />
+        <LootBoxOpeningAnimation
+          onComplete={handleOpeningComplete}
+          isGeneratingImage={isGeneratingImage}
+          isPending={isPending}
+          isConfirming={isConfirming}
+          mintError={mintError}
+          contractError={error?.message || null}
+          mintSuccess={mintSuccess}
+          shouldStartAnimation={transactionConfirmed}
+          nftUri={nftUri}
+        />
       </div>
     );
   }
@@ -240,6 +340,52 @@ const UserProfile = ({ user }: UserProfileProps) => {
       <BackgroundParticles />
 
       <div className="relative z-10 container mx-auto px-4 py-8 mt-20">
+        {/* Success notification */}
+        {mintSuccess && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50"
+          >
+            ✅ NFT successfully minted to your wallet!
+          </motion.div>
+        )}
+
+        {/* Status notifications */}
+        {isGeneratingImage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 left-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-50"
+          >
+            🎨 Creating your NFT image...
+          </motion.div>
+        )}
+
+        {isPending && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 left-4 bg-yellow-600 text-white px-6 py-3 rounded-lg shadow-lg z-50"
+          >
+            ⏳ Waiting for your transaction confirmation...
+          </motion.div>
+        )}
+
+        {isConfirming && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 left-4 bg-orange-600 text-white px-6 py-3 rounded-lg shadow-lg z-50"
+          >
+            🔄 Confirming transaction on blockchain...
+          </motion.div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -329,6 +475,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
               <InventoryTab
                 lootBoxes={user.lootBoxes}
                 handleOpenLootBox={handleOpenLootBox}
+                isWalletConnected={!!address}
               />
 
               <TabsContent value="achievements" className="p-6">

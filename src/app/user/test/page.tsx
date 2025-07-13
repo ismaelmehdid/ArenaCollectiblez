@@ -1,10 +1,9 @@
 'use client';
 import { ConnectButton } from '@/components/ConnectButton';
-import { useAccount, useReadContract, useWriteContract } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
 import ArenaCollectibleNFT from '../../../../artifacts/contracts/NFT.sol/ArenaCollectibleNFT.json';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useEffect } from 'react';
 
 export function MintNFTButton() {
   const { data: hash, writeContract, isPending, error } = useWriteContract();
@@ -112,7 +111,6 @@ export default function Page() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
       <MintNFTButton />
-      <DisplayNFT idx={0} />
     </div>
   );
 }

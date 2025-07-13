@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1752252795926,
-      "tag": "0000_large_wendell_rand",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1752257924189,
-      "tag": "0001_modern_norman_osborn",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1752304781311,
-      "tag": "0002_careless_eternity",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1752353152268,
-      "tag": "0003_strange_leopardon",
+      "when": 1752380827642,
+      "tag": "0000_famous_proemial_gods",
       "breakpoints": true
     }
   ]

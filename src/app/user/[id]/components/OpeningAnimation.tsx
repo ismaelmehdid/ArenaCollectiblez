@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Star, Crown, Zap, Diamond } from 'lucide-react';
+import { Sparkles, Star, Crown, Zap, Diamond, X } from 'lucide-react';
 
 const rarities = [
   {
@@ -33,20 +33,66 @@ const rarities = [
   },
 ];
 
+// Convert IPFS URI to gateway URL
+const convertIpfsToGateway = (ipfsUri: string) => {
+  if (ipfsUri && ipfsUri.startsWith('ipfs://')) {
+    const cid = ipfsUri.replace('ipfs://', '');
+    return `https://gateway.pinata.cloud/ipfs/${cid}`;
+  }
+  return ipfsUri;
+};
+
+interface IpfsImageProps {
+  ipfsUrl: string;
+  alt: string;
+  className?: string;
+}
+
+export function IpfsImage({ ipfsUrl, alt, className }: IpfsImageProps) {
+  // Remove protocol if present, leaving only the CID + path
+  const clean = ipfsUrl.replace(/^ipfs:\/\//, '');
+  const src = `https://gateway.pinata.cloud/ipfs/${clean}`;
+
+  return <img src={src} alt={alt} className={className} />;
+}
+
 interface LootBoxOpeningAnimationProps {
   onComplete: (rarity: string) => void;
+  isGeneratingImage?: boolean;
+  isPending?: boolean;
+  isConfirming?: boolean;
+  mintError?: string | null;
+  contractError?: string | null;
+  mintSuccess?: boolean;
+  shouldStartAnimation?: boolean;
+  nftUri?: string;
 }
 
 const LootBoxOpeningAnimation = ({
   onComplete,
+  isGeneratingImage = false,
+  isPending = false,
+  isConfirming = false,
+  mintError = null,
+  contractError = null,
+  mintSuccess = false,
+  shouldStartAnimation = false,
+  nftUri,
 }: LootBoxOpeningAnimationProps) => {
   const [currentRarity, setCurrentRarity] = useState(0);
-  const [isSpinning, setIsSpinning] = useState(true);
+  const [isSpinning, setIsSpinning] = useState(false);
   const [intensity, setIntensity] = useState(1);
   const [showFinalReveal, setShowFinalReveal] = useState(false);
   const [finalRarity, setFinalRarity] = useState<(typeof rarities)[0] | null>(
     null,
   );
+
+  // Start spinning when transaction is confirmed
+  useEffect(() => {
+    if (shouldStartAnimation && !isSpinning) {
+      setIsSpinning(true);
+    }
+  }, [shouldStartAnimation, isSpinning]);
 
   useEffect(() => {
     // Spinning phase - cycle through rarities with increasing speed and intensity
@@ -75,9 +121,7 @@ const LootBoxOpeningAnimation = ({
 
           setTimeout(() => {
             setShowFinalReveal(true);
-            setTimeout(() => {
-              onComplete(rarities[finalRarityIndex].name);
-            }, 2000);
+            // Don't auto-complete - let user close manually
           }, 500);
         }
       };
@@ -87,14 +131,50 @@ const LootBoxOpeningAnimation = ({
 
     return () => {
       clearTimeout(timeoutId);
-      clearInterval(interval);
     };
-  }, [isSpinning, onComplete]);
+  }, [isSpinning]);
 
   const currentRarityData = rarities[currentRarity];
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen relative overflow-hidden">
+      {/* Status indicators */}
+      {isGeneratingImage && (
+        <div className="fixed top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse">
+          🎨 Generating NFT image...
+        </div>
+      )}
+
+      {isPending && (
+        <div className="fixed top-4 right-4 bg-yellow-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse">
+          ⛓️ Minting NFT to blockchain...
+        </div>
+      )}
+
+      {isConfirming && (
+        <div className="fixed top-4 right-4 bg-orange-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse">
+          🔄 Waiting for transaction confirmation...
+        </div>
+      )}
+
+      {mintError && (
+        <div className="fixed top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+          ❌ Error: {mintError}
+        </div>
+      )}
+
+      {contractError && (
+        <div className="fixed top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+          ❌ Contract Error: {contractError}
+        </div>
+      )}
+
+      {mintSuccess && (
+        <div className="fixed top-4 left-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse">
+          ✅ NFT successfully minted!
+        </div>
+      )}
+
       {/* Background effects */}
       <motion.div
         animate={{
@@ -288,14 +368,29 @@ const LootBoxOpeningAnimation = ({
 
               {/* Card content */}
               <div className="relative h-48 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 1, type: 'spring', duration: 0.8 }}
-                  className="w-32 h-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center"
-                >
-                  <Diamond className="w-16 h-16 text-white" />
-                </motion.div>
+                {nftUri ? (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 1, type: 'spring', duration: 0.8 }}
+                    className="w-full h-full flex items-center justify-center"
+                  >
+                    <IpfsImage
+                      ipfsUrl={nftUri}
+                      alt="NFT Collectible"
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 1, type: 'spring', duration: 0.8 }}
+                    className="w-32 h-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center"
+                  >
+                    <Diamond className="w-16 h-16 text-white" />
+                  </motion.div>
+                )}
               </div>
 
               {/* Card info */}
@@ -359,6 +454,17 @@ const LootBoxOpeningAnimation = ({
               <p className="text-gray-300">
                 You've received a {finalRarity?.name} collectible!
               </p>
+
+              {/* Close button */}
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 2, type: 'spring', duration: 0.5 }}
+                onClick={() => onComplete(finalRarity?.name || 'Common')}
+                className="mt-6 px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-lg shadow-lg transition-all duration-200 hover:scale-105"
+              >
+                Close
+              </motion.button>
             </motion.div>
           </motion.div>
         )}
