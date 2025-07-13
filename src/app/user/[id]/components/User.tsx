@@ -40,6 +40,7 @@ export function IpfsImage({ ipfsUrl, alt, className }: IpfsImageProps) {
   const clean = ipfsUrl.replace(/^ipfs:\/\//, '');
   const src = `https://gateway.pinata.cloud/ipfs/${clean}`;
 
+  console.log('IPFS Image Source:', src);
   return <img src={src} alt={alt} className={className} />;
 }
 
@@ -422,7 +423,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
 
               <TabsContent value="collection" className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {Array.from({ length: 21 }, (_, i) => (
+                  {Array.from({ length: 70 }, (_, i) => (
                     <DisplayNFT key={`nft-${i}`} idx={i} />
                   ))}
                 </div>

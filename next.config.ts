@@ -23,7 +23,6 @@ const nextConfig: NextConfig = {
   },
   allowedDevOrigins: [
     'https://assured-turtle-possibly.ngrok-free.app',
-    'gateway.pinata.cloud',
   ],
 };
 
