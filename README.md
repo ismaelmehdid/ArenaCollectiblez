@@ -86,3 +86,10 @@ http://localhost:3000
 
 
 ### Tip: Use ngrok to access to the website from mobile to scan a ticket
+
+### Ponetial issues with canvas
+To fix, run:
+```bash
+npm rebuild canvas
+```
+
