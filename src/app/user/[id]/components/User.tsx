@@ -19,7 +19,6 @@ import {
 import ArenaCollectibleNFT from '../../../../../artifacts/contracts/NFT.sol/ArenaCollectibleNFT.json';
 import { useEffect } from 'react';
 import { fetchDeleteLootBox } from '../../../../../backend/data_access_layer/lootbox';
-import { fetchAddNftToUser } from '../../../../../backend/data_access_layer/nft';
 
 // Convert IPFS URI to gateway URL
 const convertIpfsToGateway = (ipfsUri: string) => {

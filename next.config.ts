@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
     return config;
   },
-    images: {
+  images: {
     remotePatterns: [
       {
         protocol: 'https',
@@ -13,9 +13,18 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '**',
       },
+      {
+        protocol: 'https',
+        hostname: 'gateway.pinata.cloud',
+        port: '',
+        pathname: '**',
+      },
     ],
   },
-  allowedDevOrigins: ['https://assured-turtle-possibly.ngrok-free.app'],
+  allowedDevOrigins: [
+    'https://assured-turtle-possibly.ngrok-free.app',
+    'gateway.pinata.cloud',
+  ],
 };
 
 export default nextConfig;
