@@ -8,7 +8,7 @@ ArenaCollectiblez is a fan engagement platform that transforms sports events int
 
 Follow these steps to run the project locally:
 
-### 1. Clone the Repository
+### 1. Clone the Repository and download dependencies 
 ```bash
 git clone https://github.com/redarling/ArenaCollectiblez.git
 cd ArenaCollectiblez
