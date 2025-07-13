@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Star, Crown, Zap, Diamond, X } from 'lucide-react';
+import Image from 'next/image';
 
 const rarities = [
   {
@@ -342,106 +343,58 @@ const LootBoxOpeningAnimation = ({
             }}
             className="relative"
           >
-            {/* Final card reveal */}
             <motion.div
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.5, type: 'spring', duration: 1 }}
-              className="w-80 h-96 bg-black/40 backdrop-blur-xl border-2 border-white/20 rounded-2xl overflow-hidden relative"
+              className="group cursor-pointer"
             >
-              {/* Card header */}
               <div
-                className={`h-16 bg-gradient-to-r ${finalRarity?.color} flex items-center justify-center relative`}
+                className="relative overflow-hidden bg-gradient-to-br from-gray-900 to-black rounded-2xl transition-all duration-500"
+                style={{ aspectRatio: '1024/1536', width: '320px' }}
               >
-                <motion.div
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-                >
-                  {finalRarity && (
-                    <finalRarity.icon className="w-6 h-6 text-white mr-2" />
-                  )}
-                </motion.div>
-                <span className="text-white font-bold text-lg">
-                  {finalRarity?.name}
-                </span>
-              </div>
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br ${finalRarity?.color} opacity-20 rounded-2xl`}
+                />
 
-              {/* Card content */}
-              <div className="relative h-48 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-                {nftUri ? (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 1, type: 'spring', duration: 0.8 }}
-                    className="w-full h-full flex items-center justify-center"
-                  >
-                    <IpfsImage
-                      ipfsUrl={nftUri}
-                      alt="NFT Collectible"
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 1, type: 'spring', duration: 0.8 }}
-                    className="w-32 h-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center"
-                  >
-                    <Diamond className="w-16 h-16 text-white" />
-                  </motion.div>
-                )}
-              </div>
+                <div className="relative w-full h-full flex items-center justify-center p-8">
+                    {nftUri ? (
+                      <IpfsImage
+                        ipfsUrl={nftUri}
+                        alt="NFT Collectible"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl">
+                        <Diamond className="w-16 h-16 text-white" />
+                      </div>
+                    )}
 
-              {/* Card info */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.2 }}
-                className="p-6 text-center"
-              >
-                <h3 className="text-xl font-bold text-white mb-2">
-                  Mystery Collectible
-                </h3>
-                <div className="flex justify-center items-center space-x-1 mb-2">
-                  {Array.from({
-                    length:
-                      finalRarity?.name === 'Legendary'
-                        ? 5
-                        : finalRarity?.name === 'Epic'
-                          ? 4
-                          : finalRarity?.name === 'Rare'
-                            ? 3
-                            : 2,
-                  }).map((_, i) => (
+                  {Array.from({ length: 8 }).map((_, i) => (
                     <motion.div
-                      key={crypto.randomUUID()}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 1.4 + i * 0.1 }}
-                    >
-                      <Star className="w-4 h-4 fill-current text-yellow-400" />
-                    </motion.div>
+                      key={i}
+                      className={`absolute w-2 h-2 rounded-full bg-gradient-to-r ${finalRarity?.color} opacity-60`}
+                      animate={{
+                        x: [0, Math.cos(i * 0.8) * 80],
+                        y: [0, Math.sin(i * 0.8) * 80],
+                        opacity: [0, 1, 0],
+                      }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        delay: i * 0.2,
+                        ease: 'easeOut',
+                      }}
+                      style={{
+                        left: '50%',
+                        top: '50%',
+                      }}
+                    />
                   ))}
                 </div>
-                <p className="text-gray-300 text-sm">
-                  A {finalRarity?.name.toLowerCase()} collectible with unique
-                  powers
-                </p>
-              </motion.div>
-
-              {/* Card glow effect */}
-              <motion.div
-                animate={{
-                  scale: [1, 1.05, 1],
-                  opacity: [0.5, 0.8, 0.5],
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className={`absolute inset-0 bg-gradient-to-r ${finalRarity?.color} rounded-2xl blur-xl -z-10`}
-              />
+              </div>
             </motion.div>
 
-            {/* Success message */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -451,20 +404,7 @@ const LootBoxOpeningAnimation = ({
               <h3 className="text-3xl font-bold text-white mb-2">
                 Congratulations! 🎉
               </h3>
-              <p className="text-gray-300">
-                You've received a {finalRarity?.name} collectible!
-              </p>
-
-              {/* Close button */}
-              <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 2, type: 'spring', duration: 0.5 }}
-                onClick={() => onComplete(finalRarity?.name || 'Common')}
-                className="mt-6 px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-lg shadow-lg transition-all duration-200 hover:scale-105"
-              >
-                Close
-              </motion.button>
+              <p className="text-gray-300">You've received a collectible!</p>
             </motion.div>
           </motion.div>
         )}

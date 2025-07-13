@@ -449,7 +449,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
 
               <TabsContent value="collection" className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {Array.from({ length: 21 }, (_, i) => (
+                  {Array.from({ length: 10 }, (_, i) => (
                     <DisplayNFT key={i} idx={i} />
                   ))}
                 </div>
