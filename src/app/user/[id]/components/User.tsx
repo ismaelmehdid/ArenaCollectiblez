@@ -1,6 +1,6 @@
   'use client';
 import { motion } from 'framer-motion';
-import { Star, Trophy, Loader2 } from 'lucide-react';
+import { Star, Trophy } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -234,7 +234,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
       
       deleteLootBoxAfterConfirmation();
     }
-  }, [isConfirmed, transactionHash]);
+  }, [isConfirmed, transactionHash, currentBoxId]);
 
   // Capture transaction hash when available
   useEffect(() => {
@@ -344,42 +344,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
           </motion.div>
         )}
 
-        {/* Status notifications */}
-        {isGeneratingImage && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 left-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3"
-          >
-            <Loader2 className="w-5 h-5 animate-spin" />
-            🎨 Creating your NFT image...
-          </motion.div>
-        )}
 
-        {isPending && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 left-4 bg-yellow-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3"
-          >
-            <Loader2 className="w-5 h-5 animate-spin" />
-            ⏳ Waiting for your transaction confirmation...
-          </motion.div>
-        )}
-
-        {isConfirming && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 left-4 bg-orange-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3"
-          >
-            <Loader2 className="w-5 h-5 animate-spin" />
-            🔄 Confirming transaction on blockchain...
-          </motion.div>
-        )}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -407,11 +372,10 @@ const UserProfile = ({ user }: UserProfileProps) => {
                 <p className="text-gray-300 mb-4">
                   Joined {new Date(user.createdAt).toDateString()}
                 </p>
-
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-white">
-                      {user.nfts.length}
+                      {'12'}
                     </p>
                     <p className="text-gray-400 text-sm">NFTs Owned</p>
                   </div>
@@ -466,7 +430,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
               <TabsContent value="collection" className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {Array.from({ length: 21 }, (_, i) => (
-                    <DisplayNFT key={i} idx={i} />
+                    <DisplayNFT key={`nft-${i}`} idx={i} />
                   ))}
                 </div>
               </TabsContent>
@@ -475,6 +439,11 @@ const UserProfile = ({ user }: UserProfileProps) => {
                 lootBoxes={user.lootBoxes}
                 handleOpenLootBox={handleOpenLootBox}
                 isWalletConnected={!!address}
+                isGeneratingImage={isGeneratingImage}
+                isPending={isPending}
+                isConfirming={isConfirming}
+                mintError={mintError}
+                contractError={error?.message || null}
               />
 
               <TabsContent value="achievements" className="p-6">

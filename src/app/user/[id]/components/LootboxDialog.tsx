@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Loader2 } from 'lucide-react';
 import { RarityBlock } from './RarityBlock';
 
 const MAX_PRICE = 1000;
@@ -64,6 +64,11 @@ interface LootBoxDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   handleOpenLootBox: (boxId: string) => void;
+  isGeneratingImage?: boolean;
+  isPending?: boolean;
+  isConfirming?: boolean;
+  mintError?: string | null;
+  contractError?: string | null;
 }
 
 export const LootBoxDialog = ({
@@ -72,6 +77,11 @@ export const LootBoxDialog = ({
   boxId,
   boxName,
   handleOpenLootBox,
+  isGeneratingImage = false,
+  isPending = false,
+  isConfirming = false,
+  mintError = null,
+  contractError = null,
 }: LootBoxDialogProps) => {
   const [price, setPrice] = useState([1]);
   const chances = calculateChances(price[0]);
@@ -86,10 +96,51 @@ export const LootBoxDialog = ({
         </DialogHeader>
 
         <div className="space-y-6 p-2">
+          {/* Loading States */}
+          {(isGeneratingImage || isPending || isConfirming) && (
+            <div className="space-y-4">
+              {isGeneratingImage && (
+                <div className="flex items-center justify-center gap-3 p-4 bg-blue-600/20 rounded-lg border border-blue-500/30">
+                  <Loader2 className="w-5 h-5 animate-spin text-blue-400" />
+                  <span className="text-blue-400 font-medium">
+                    🎨 Creating your NFT image...
+                  </span>
+                </div>
+              )}
+              
+              {isPending && (
+                <div className="flex items-center justify-center gap-3 p-4 bg-yellow-600/20 rounded-lg border border-yellow-500/30">
+                  <Loader2 className="w-5 h-5 animate-spin text-yellow-400" />
+                  <span className="text-yellow-400 font-medium">
+                    ⏳ Waiting for your transaction confirmation...
+                  </span>
+                </div>
+              )}
+              
+              {isConfirming && (
+                <div className="flex items-center justify-center gap-3 p-4 bg-orange-600/20 rounded-lg border border-orange-500/30">
+                  <Loader2 className="w-5 h-5 animate-spin text-orange-400" />
+                  <span className="text-orange-400 font-medium">
+                    🔄 Confirming transaction on blockchain...
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Error States */}
+          {(mintError || contractError) && (
+            <div className="p-4 bg-red-600/20 rounded-lg border border-red-500/30">
+              <p className="text-red-400 text-sm">
+                {mintError || contractError}
+              </p>
+            </div>
+          )}
+
           {/* Price Slider */}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <label className="text-sm font-medium text-gray-300">Price</label>
+              <span className="text-sm font-medium text-gray-300">Price</span>
               <span className="text-lg font-bold text-purple-400">
                 {price[0]} CHZ
               </span>
@@ -137,10 +188,20 @@ export const LootBoxDialog = ({
 
           <Button
             onClick={() => handleOpenLootBox(boxId)}
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6 text-lg font-semibold rounded-xl border border-purple-400/50 hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
+            disabled={isGeneratingImage || isPending || isConfirming}
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6 text-lg font-semibold rounded-xl border border-purple-400/50 hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Sparkles className="w-5 h-5 mr-2" />
-            Open Loot Box - {price[0]} CHZ
+            {(isGeneratingImage || isPending || isConfirming) ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-5 h-5 mr-2" />
+                Open Loot Box - {price[0]} CHZ
+              </>
+            )}
           </Button>
         </div>
       </DialogContent>

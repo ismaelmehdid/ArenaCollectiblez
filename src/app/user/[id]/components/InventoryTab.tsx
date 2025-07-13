@@ -16,12 +16,22 @@ type InventoryTabProps = {
   lootBoxes: LootBox[];
   handleOpenLootBox: (boxId: string) => void;
   isWalletConnected?: boolean;
+  isGeneratingImage?: boolean;
+  isPending?: boolean;
+  isConfirming?: boolean;
+  mintError?: string | null;
+  contractError?: string | null;
 };
 
 export function InventoryTab({
   lootBoxes,
   handleOpenLootBox,
   isWalletConnected = true,
+  isGeneratingImage = false,
+  isPending = false,
+  isConfirming = false,
+  mintError = null,
+  contractError = null,
 }: InventoryTabProps) {
   const [openState, setOpenState] = useState(false);
   const [box, setBox] = useState<LootBox | null>(null);
@@ -45,6 +55,11 @@ export function InventoryTab({
           boxId={box.id}
           boxName={box.name}
           handleOpenLootBox={handleOpenLootBox}
+          isGeneratingImage={isGeneratingImage}
+          isPending={isPending}
+          isConfirming={isConfirming}
+          mintError={mintError}
+          contractError={contractError}
         />
       )}
       <TabsContent value="inventory" className="p-6">
