@@ -1,6 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Star, Trophy } from 'lucide-react';
+import { Star, Trophy, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -18,6 +18,7 @@ import {
 } from 'wagmi';
 import ArenaCollectibleNFT from '../../../../../artifacts/contracts/NFT.sol/ArenaCollectibleNFT.json';
 import { useEffect } from 'react';
+import { fetchDeleteLootBox, fetchReceiveLootBox } from '../../../../../backend/data_access_layer/lootbox';
 
 // Convert IPFS URI to gateway URL
 const convertIpfsToGateway = (ipfsUri: string) => {
@@ -294,6 +295,12 @@ const UserProfile = ({ user }: UserProfileProps) => {
         args: [address, tokenUri],
         value: BigInt('1000000000000000'), // 0.001 CHZ in wei
       });
+
+      // Delete lootbox from database
+      const deleteResult = await fetchDeleteLootBox(boxId);
+      if (!deleteResult) {
+        console.error('Failed to delete lootbox');
+      }
     } catch (error) {
       console.error('Error minting NFT:', error);
       setMintError(
@@ -358,8 +365,9 @@ const UserProfile = ({ user }: UserProfileProps) => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 left-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-50"
+            className="fixed top-4 left-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3"
           >
+            <Loader2 className="w-5 h-5 animate-spin" />
             🎨 Creating your NFT image...
           </motion.div>
         )}
@@ -369,8 +377,9 @@ const UserProfile = ({ user }: UserProfileProps) => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 left-4 bg-yellow-600 text-white px-6 py-3 rounded-lg shadow-lg z-50"
+            className="fixed top-4 left-4 bg-yellow-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3"
           >
+            <Loader2 className="w-5 h-5 animate-spin" />
             ⏳ Waiting for your transaction confirmation...
           </motion.div>
         )}
@@ -380,8 +389,9 @@ const UserProfile = ({ user }: UserProfileProps) => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 left-4 bg-orange-600 text-white px-6 py-3 rounded-lg shadow-lg z-50"
+            className="fixed top-4 left-4 bg-orange-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3"
           >
+            <Loader2 className="w-5 h-5 animate-spin" />
             🔄 Confirming transaction on blockchain...
           </motion.div>
         )}

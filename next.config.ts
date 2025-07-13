@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  allowedDevOrigins: ['https://kangaroo-amazing-wrongly.ngrok-free.app'],
+  allowedDevOrigins: ['https://assured-turtle-possibly.ngrok-free.app'],
 };
 
 export default nextConfig;
