@@ -1,6 +1,6 @@
-  'use client';
+'use client';
 import { motion } from 'framer-motion';
-import { Star, Trophy, Loader2 } from 'lucide-react';
+import { Star, Trophy } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -97,9 +97,7 @@ export function DisplayNFT({ idx }: { idx: number }) {
   }
 
   if (!nftUri) {
-    return (
-      <div/>
-    );
+    return <div />;
   }
 
   const gatewayUrl = convertIpfsToGateway(nftUri as string);
@@ -188,6 +186,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [transactionConfirmed, setTransactionConfirmed] = useState(false);
   const [nftUri, setNftUri] = useState<string | undefined>(undefined);
+  const [currentBoxId, setCurrentBoxId] = useState<string | null>(null);
 
   // Wait for transaction receipt
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
@@ -213,8 +212,26 @@ const UserProfile = ({ user }: UserProfileProps) => {
       setTransactionConfirmed(true);
       setShowOpeningAnimation(true);
       setTransactionHash(null);
+
+      // Delete lootbox from database after successful transaction
+      const deleteLootBoxAfterConfirmation = async () => {
+        try {
+          // We need to get the boxId from the current lootbox being opened
+          // For now, we'll need to store the boxId when starting the process
+          if (currentBoxId) {
+            const deleteResult = await fetchDeleteLootBox(currentBoxId);
+            if (!deleteResult) {
+              console.error('Failed to delete lootbox after confirmation');
+            }
+          }
+        } catch (error) {
+          console.error('Error deleting lootbox after confirmation:', error);
+        }
+      };
+
+      deleteLootBoxAfterConfirmation();
     }
-  }, [isConfirmed, transactionHash]);
+  }, [isConfirmed, transactionHash, currentBoxId]);
 
   // Capture transaction hash when available
   useEffect(() => {
@@ -240,6 +257,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
     }
 
     setMintError(null);
+    setCurrentBoxId(boxId);
 
     try {
       // Step 1: Generate random image and get IPFS CID
@@ -264,12 +282,6 @@ const UserProfile = ({ user }: UserProfileProps) => {
         args: [address, tokenUri],
         value: BigInt('1000000000000000'), // 0.001 CHZ in wei
       });
-
-      // Delete lootbox from database
-      const deleteResult = await fetchDeleteLootBox(boxId);
-      if (!deleteResult) {
-        console.error('Failed to delete lootbox');
-      }
     } catch (error) {
       console.error('Error minting NFT:', error);
       setMintError(
@@ -288,6 +300,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
     setMintSuccess(true);
     setTransactionConfirmed(false);
     setNftUri(undefined);
+    setCurrentBoxId(null);
 
     // Reset error state
     setMintError(null);
@@ -328,43 +341,6 @@ const UserProfile = ({ user }: UserProfileProps) => {
           </motion.div>
         )}
 
-        {/* Status notifications */}
-        {isGeneratingImage && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 left-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3"
-          >
-            <Loader2 className="w-5 h-5 animate-spin" />
-            🎨 Creating your NFT image...
-          </motion.div>
-        )}
-
-        {isPending && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 left-4 bg-yellow-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3"
-          >
-            <Loader2 className="w-5 h-5 animate-spin" />
-            ⏳ Waiting for your transaction confirmation...
-          </motion.div>
-        )}
-
-        {isConfirming && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-4 left-4 bg-orange-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3"
-          >
-            <Loader2 className="w-5 h-5 animate-spin" />
-            🔄 Confirming transaction on blockchain...
-          </motion.div>
-        )}
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -391,12 +367,9 @@ const UserProfile = ({ user }: UserProfileProps) => {
                 <p className="text-gray-300 mb-4">
                   Joined {new Date(user.createdAt).toDateString()}
                 </p>
-
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-white">
-                      {user.nfts.length}
-                    </p>
+                    <p className="text-2xl font-bold text-white">{'12'}</p>
                     <p className="text-gray-400 text-sm">NFTs Owned</p>
                   </div>
                   <div className="text-center">
@@ -449,8 +422,8 @@ const UserProfile = ({ user }: UserProfileProps) => {
 
               <TabsContent value="collection" className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {Array.from({ length: 10 }, (_, i) => (
-                    <DisplayNFT key={i} idx={i} />
+                  {Array.from({ length: 21 }, (_, i) => (
+                    <DisplayNFT key={`nft-${i}`} idx={i} />
                   ))}
                 </div>
               </TabsContent>
@@ -459,6 +432,11 @@ const UserProfile = ({ user }: UserProfileProps) => {
                 lootBoxes={user.lootBoxes}
                 handleOpenLootBox={handleOpenLootBox}
                 isWalletConnected={!!address}
+                isGeneratingImage={isGeneratingImage}
+                isPending={isPending}
+                isConfirming={isConfirming}
+                mintError={mintError}
+                contractError={error?.message || null}
               />
 
               <TabsContent value="achievements" className="p-6">
